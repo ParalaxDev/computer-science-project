@@ -34,13 +34,13 @@ class OSC:
         self.IP = newIP
 
     def send(self, OSCMessage: 'ConstructOSCMessage') -> None:
-        # print(f'[CLIENT] SENDING MESSAGE: {OSCMessage.MESSAGE}')
+        print(f'[CLIENT] SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}')
         self.SOCK.sendto(bytes(PadString(OSCMessage.MESSAGE) + PadString(',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
 
-        serverThread = threading.Thread(target=self.receive, args=(OSCMessage, self.decode))
-        serverThread.start()
+        # serverThread = threading.Thread(target=self.receive, args=(OSCMessage, self.decode))
+        # serverThread.start()
 
-        return self.QUEUE.get()
+        # return self.QUEUE.get()
 
         # return self.receive(OSCMessage, self.decode)
 
