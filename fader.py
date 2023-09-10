@@ -3,7 +3,8 @@ from PyQt6.QtCore import Qt
 import math, random, time
 from OSC import OSC, ConstructOSCMessage
 from edit import QEditClass
-from utils import FloatToDb, DbToFloat
+from utils import FloatToDb, DbToFloat, TypeToName
+from channel import Channel
 
 class _Bar(QtWidgets.QWidget):
     def __init__(self, steps, *args, **kwargs):
@@ -75,17 +76,15 @@ class _Bar(QtWidgets.QWidget):
     def _trigger_refresh(self):
         self.update()
 
+
 class Fader(QtWidgets.QWidget):
 
-    def __init__(self, OSC: 'OSC', i, *args, **kwargs):
+    def __init__(self, OSC: 'OSC', channel: 'Channel', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.OSC = OSC
-        self.volume = int(FloatToDb(0.8250))
-        self.meter = random.random()
-        self.ID = i
-
-        self.name = f'test {i} {random.randint(0, 999)}'
+        self.CHANNEL = channel
+        
         self.muted = False
         self.soloed = False
         self.selected = False
@@ -93,17 +92,17 @@ class Fader(QtWidgets.QWidget):
         self.setFixedWidth(100)
         layout = QtWidgets.QVBoxLayout()
 
-        # Add mute button
+        # Add label
+        self._nameLabel = QtWidgets.QLabel()
+        self._nameLabel.setText(self.name)
+        self._nameLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self._nameLabel)
+
         self._selectButton = QtWidgets.QPushButton()
         self._selectButton.setText('Select')
         self._selectButton.clicked.connect(self.selectToggle)
         # self._selectButton.setCheckable(True)
         layout.addWidget(self._selectButton)
-
-        # Add label
-        self._nameLabel = QtWidgets.QLabel()
-        self._nameLabel.setText(self.name)
-        self._nameLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
         self._bar = _Bar(["#00ff00", "#00ff00", "#fca503", "#fca503", "#fca503", "#ff0000"])
         layout.addWidget(self._bar, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -163,7 +162,7 @@ class Fader(QtWidgets.QWidget):
     def selectToggle(self):
         self.selected = not self.selected
         if self.selected:
-            self.edit = QEditClass(self.OSC, self.ID)
+            self.edit = QEditClass(self.OSC, self.ID, self.TYPE)
             self.edit.show()
             # self.edit
             # self.edit.closeEvent

@@ -1,23 +1,7 @@
 import socket, struct, math, threading, select, time, queue
+import osctypes
+from utils import PadString, DbToFloat, FloatToDb
 
-def PadString(msg):	
-    str_length = math.ceil((len(msg)+1) / 4.0) * 4
-    nulls = '\0' * (str_length - len(msg))
-    return msg + nulls
-
-def FloatToDb(float):
-    if (float >= 0.5): d = float * 40 - 30
-    elif (float >= 0.25): d = float * 80 - 50
-    elif (float >= 0.625): d = float * 160 - 70
-    elif (float >= 0.0): d = float * 480 - 90
-    return d
-
-def DbToFloat(db):
-    if (db < -60): f = (db + 90) / 480
-    elif (db < -30): f = (db + 70) / 160
-    elif (db < -10): f = (db + 50) / 80
-    elif (db <= 10): f = (db + 30) / 40
-    return int(f * 1023.5) / 1023.0
 
 class OSC:
     def __init__(self, ip, port=10023, host=10024, timeout=5) -> None:
@@ -42,64 +26,43 @@ class OSC:
 
         # return self.QUEUE.get()
 
-        # return self.receive(OSCMessage, self.decode)
+        return self.receive(OSCMessage, self.decode)
 
     def receive(self, msg: 'ConstructOSCMessage', callback):
         ready = select.select([self.SOCK], [], [], 5)
+
         if ready[0]:
-            data, addr = self.SOCK.recvfrom(1024)
-            # print(f"[SERVER] RECEIVED MESSAGE: {data} from {addr}")
-            try:
-                res = callback(data)
-                self.QUEUE.put(res)
-            except:
-                raise Exception(f'There was an error parsing the response from the message {msg.MESSAGE}')
-        
+            data, addr = self.SOCK.recvfrom(self.HOST)
+            print(f"[CLIENT] RECEIVED MESSAGE: {data} from {addr[0]}")
+            res = callback(data)
+            return res
+
     def decode(self, data):
-        split = data.split(b',')
-        msg = split[0].decode()
-        data = split[1]
 
-        data = [data[i:i+1] for i in range(0, len(data), 1)]
+        _, dgram =  [b',' + e for e in data.split(b',') if e]
 
-        # TODO: there has to be a better way to do this
-        types = []
-        eots = False
-        segments = []
-        temp = []
-        v = 0
-        x = 0
-        parsed = ()
-        for i, byte in enumerate(data):
-            if eots:
-                v += 1
-                if v < 4:
-                    temp.append(byte)
-                else:
-                    temp.append(byte)
-                    segments.append(b''.join(temp))
+        typetag, index = osctypes.get_string(dgram, 0)
 
-                    if types[x] == 'f':
-                        parsed += (struct.unpack('>f', segments[x])[0], )
-                    elif types[x] == 'i':
-                        parsed += (struct.unpack('>i', segments[x])[0], )
+        params = ()
 
-                    x += 1
-                    v = 0
-                    temp = []
-            try:
-                if byte.decode() == 'f' or byte.decode() == 'i' or byte.decode() == 's':
-                    types += byte.decode()
-            except:
-                pass
-            
-            if byte == b'\0':
-                # Add one because counting starts at 0, and another because the comma should be included
-                if (i + 2) % 4 == 0:
-                    eots = True
-                
+        if typetag.startswith(','):
+            typetag = typetag[1:]
 
-        return parsed
+        for type in typetag:
+            match type:
+                case 'i':
+                    val, index = osctypes.get_int(dgram, index)
+                case 'f':
+                    val, index = osctypes.get_float(dgram, index)
+                case 's':
+                    val, index = osctypes.get_string(dgram, index)
+                case 'b':
+                    val, index = osctypes.get_blob(dgram, index)
+
+            params += (val,)
+
+        return params
+        
 
 class ConstructOSCMessage:
     def __init__(self, message, args = []) -> None:

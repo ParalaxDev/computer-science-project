@@ -32,6 +32,11 @@ class ConstructOSCMessage:
 print('listening...')
 while True:
     data, addr = sock.recvfrom(1024)
-    print("received data: %s" % data)
-    test = ConstructOSCMessage('/ch/01/mix/fader', [{'f': random.uniform(0, 1)}])
+    res = data.replace(b'\x00',b'')
+    # print("received data: %s" % data)
+    print(res.split(b',')[0].decode())
+    test = ConstructOSCMessage(res.split(b',')[0].decode(), [{'s': 'hello'}, {'i': 545} , {'f': 0.69}])
+    # print(bytes(PadString(test.MESSAGE) + PadString(',' + test.TYPE_STRING), 'ascii'))
     sock.sendto(bytes(PadString(test.MESSAGE) + PadString(',' + test.TYPE_STRING), 'ascii') + test.VALUE_ARRAY, (UDP_IP, 10024))
+
+print(bytes(PadString('fda'), 'ascii'))

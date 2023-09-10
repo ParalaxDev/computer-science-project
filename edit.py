@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtCore import Qt
 from OSC import OSC, ConstructOSCMessage
 from PySide6.QtCore import QRect
-from utils import FloatToDb, DbToFloat
+from utils import FloatToDb, DbToFloat, TypeToName
 
 
 QEdit = uic.loadUiType("ui/edit-window.ui")[0]
@@ -79,12 +79,13 @@ class _Bar(QtWidgets.QWidget):
 
 
 class QEditClass(QtWidgets.QWidget, QEdit):
-    def __init__(self, OSC: 'OSC', id, parent=None):
+    def __init__(self, OSC: 'OSC', id, type, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.OSC = OSC
-        self.setWindowTitle(f'Edit {id}')
+        self.setWindowTitle(f'Edit {TypeToName(type)} {id + 1}')
         self.ID = id
+        self.TYPE = type
 
         self.gain = 0
         self.lowcut = 20

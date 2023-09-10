@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from fader import Fader
 from OSC import OSC, ConstructOSCMessage
+from channel import Channel
 import os
 import sys
 import time
@@ -45,7 +46,8 @@ class Window(QtWidgets.QMainWindow):
         self._faders = []
 
         for i in range(32):
-            FADER = Fader(self.OSC, i)
+            ch = Channel(i)
+            FADER = Fader(self.OSC, ch)
             FADER.setObjectName(f'fader-{i}')
             FADER.faderUpdate(0)
             faderLayout.addWidget(FADER)

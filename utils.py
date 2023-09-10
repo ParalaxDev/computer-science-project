@@ -1,3 +1,5 @@
+import math
+
 def FloatToDb(float):
     if (float >= 0.5): d = float * 40 - 30
     elif (float >= 0.25): d = float * 80 - 50
@@ -11,3 +13,16 @@ def DbToFloat(db):
     elif (db < -10): f = (db + 50) / 80
     elif (db <= 10): f = (db + 30) / 40
     return int(f * 1023.5) / 1023.0
+
+def TypeToName(type):
+    if type == 'ch':
+        return 'Channel'
+    elif type == 'bus':
+        return 'Bus'
+    elif type == 'mtx':
+        return 'Matrix'
+    
+def PadString(msg):	
+    str_length = math.ceil((len(msg)+1) / 4.0) * 4
+    nulls = '\0' * (str_length - len(msg))
+    return msg + nulls
