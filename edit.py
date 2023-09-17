@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 from OSC import OSC, ConstructOSCMessage
 from PySide6.QtCore import QRect
 from utils import FloatToDb, DbToFloat, TypeToName
+from channel import Channel
 
 
 QEdit = uic.loadUiType("ui/edit-window.ui")[0]
@@ -79,37 +80,28 @@ class _Bar(QtWidgets.QWidget):
 
 
 class QEditClass(QtWidgets.QWidget, QEdit):
-    def __init__(self, OSC: 'OSC', id, type, parent=None):
+    def __init__(self, OSC: 'OSC', SOURCE: 'Channel', parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.OSC = OSC
-        self.setWindowTitle(f'Edit {TypeToName(type)} {id + 1}')
-        self.ID = id
-        self.TYPE = type
-
-        self.gain = 0
-        self.lowcut = 20
-        self.delay = 0
-        self.lowcutToggle = False
-        self.delayToggle = False
-        self.meter = 0.5
+        self.setWindowTitle(f'Edit {SOURCE.NAME}')
+        self.SOURCE = SOURCE
 
         self.updateMeter(0.5)
 
         self._meter = _Bar(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
         self._meter.setGeometry(20, 70, 31, 201)
         
-        self._gainDial.valueChanged.connect(self.gainChanged)
+        self._gainDial.valueChanged.connect(self.trimChanged)
         self._lowcutDial.valueChanged.connect(self.lowcutChanged)
         self._delayDial.valueChanged.connect(self.delayChanged)
 
         self._lowcutToggle.clicked.connect(self.lowcutToggled)
         self._delayToggle.clicked.connect(self.delayToggled)
 
-    def gainChanged(self, val):
+    def trimChanged(self, val):
+        self.SOURCE.updateHeadampGain(float(val))
         self._gainLevel.setText(f'{"" if val < 0 else "+"}{float(val)}db')
-        self.gain = val
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/preamp/trim', [{'f': self.gain}]))
 
     def lowcutChanged(self, val):
         self._lowcutLevel.setText(f'{val}hz')

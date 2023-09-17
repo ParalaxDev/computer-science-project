@@ -1,5 +1,6 @@
 from utils import TypeToName
 from OSC import OSC, ConstructOSCMessage
+import log
 
 class Colours:
     OFF = 0
@@ -15,37 +16,59 @@ class Base:
     def __init__(self, OSC: 'OSC', id, type) -> None:
         self.OSC = OSC
 
+        if id <= 0 or id > 32:
+            log.error(f'{id} is not a valid number for fader')
+            raise Exception()
+        
         self.ID = id
         self.TYPE = type
+        self.UUID = self.TYPE + str(self.ID)
 
-        self.NAME = f'{TypeToName(type)}{id}'
-        self.COLOUR = None
-        self.SOURCE = id
+        self.NAME = ''
+        self.COLOUR = Colours.OFF
+        self.SOURCE = 0
+        self.LINK = False
 
-        self.DELAY = False
+        self.HEADAMP_SOURCE = 0
+        self.HEADAMP_GAIN = 0
+
+        self.DELAY_ON = False
         self.DELAY_TIME = 0
 
         self.GAIN = 0
-        self.TRIM = 0
+        
+
+        self.MUTE = False
+
+        
+
+    def __str__(self) -> str:
+        return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
     def populateFields(self):
-        one, two, three = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/config/name', [{'s': self.NAME}]))
-        print(one, two, three)
+        self.NAME, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
+        self.COLOUR, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
+        self.SOURCE, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
+        self.LINK, = self.OSC.send(ConstructOSCMessage(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
 
+        self.DELAY_ON, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
+        self.DELAY_TIME, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time'))
 
+        self.GAIN, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
 
-    def triggerError(self, msg):
-        print(f'ERROR: {msg}')
-        pass
+        self.MUTE, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
 
-    def updateName(self, val):
-        if val > 12 or val < 1:
+    def triggerError(self, msg: str) -> None:
+        log.error({msg})
+
+    def updateName(self, val: str) -> None:
+        if type(val) == str and len(val) > 12 or len(val) < 1:
             self.triggerError('Name should be at least 1 character and no longer than 12 characters')
         else:
             self.NAME = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/config/name', [{'s': self.NAME}]))
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name', [{'s': self.NAME}]))
 
-    def updateColour(self, col):
+    def updateColour(self, col: str):
         colcode = None
         col = col.lower()
         if col == 'red':
@@ -67,50 +90,74 @@ class Base:
             self.triggerError('Not a valid colour')
         else:
             self.COLOUR = colcode
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/config/color', [{'i': self.COLOUR}]))
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color', [{'i': self.COLOUR}]))
 
-    def updateSource(self, val):
-        if val > 0 and val < 64:
+    def updateSource(self, val: int) -> None:
+        if type(val) == int and val > 0 and val < 64:
             self.SOURCE = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/config/source', [{'i': self.SOURCE}]))
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source', [{'i': self.SOURCE}]))
         else:
             self.triggerError('Not a valid source')
 
-    def updateDelay(self, val):
-        if val == True or val == False:
-            self.DELAY = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/delay/on', [{'i': 0 if self.DELAY else 1}]))
+    def updateLink(self, val: bool) -> None:
+        if type(val) == bool:
+            self.LINK = val
+            self.OSC.send(ConstructOSCMessage(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 0 if self.LINK else 1}]))
         else:
-            self.triggerError('Value is not a boolean')
+            self.triggerError('Link toggle is not a boolean')
 
-    def updateDelayTime(self, val):
-        if val > 0.3 or val < 500:
+    def updateDelay(self, val: bool) -> None:
+        if type(val) == bool:
+            self.DELAY_ON = val
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 0 if self.DELAY_ON else 1}]))
+        else:
+            self.triggerError('Delay toggle is not a boolean')
+
+    def updateDelayTime(self, val: float) -> None:
+        if type(val) == float and val > 0.3 or val < 500:
             self.DELAY_TIME = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/delay/time', [{'f': round(self.DELAY_TIME, 1)}]))
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time', [{'f': round(self.DELAY_TIME, 1)}]))
         else:
-            self.triggerError('Value is not between 0.3 and 500 ms')
+            self.triggerError('Delay time value is not between 0.3 and 500 ms')
 
-    def updateGain(self, val):
-        if val >= 0 and val <= 1:
+    def updateGain(self, val: float) -> None:
+        if type(val) == float and val >= 0 and val <= 1:
             self.GAIN = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/mix/fader', [{'f': self.GAIN}]))
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader', [{'f': self.GAIN}]))
         else:
-            self.triggerError('Not a valid float between 0 and 1')
+            self.triggerError('Gain is not a valid float between 0 and 1')
 
-    def updateTrim(self, val):
-        if val >= 0 and val <= 1:
-            self.TRIM = val
-            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID+1).zfill(2)}/preamp/trim', [{'f': self.GAIN}]))
+    def updateMute(self, val: bool) -> None:
+        if type(val) == bool:
+            self.MUTE = val
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 0 if self.MUTE else 1}]))
         else:
-            self.triggerError('Not a valid float between 0 and 1')
+            self.triggerError('Mute value is not a boolean')
+
 
 class Channel(Base):
     def __init__(self, OSC: 'OSC', id) -> None:
         super().__init__(OSC, id, 'ch')
-        pass
 
+        self.HEADAMP_SOURCE, = self.OSC.send(ConstructOSCMessage(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
+        self.HEADAMP_GAIN, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
 
+        self.populateFields()
 
-osc = OSC('127.0.0.1')
-test = Channel(osc, 0)
-test.populateFields()
+    def populateFields(self):
+        super().populateFields()
+
+    def updateHeadampGain(self, val: float) -> None:
+        if type(val) == float and val >= -12 and val <= 60:
+            self.HEADAMP_GAIN = val
+            self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain', [{'f': self.HEADAMP_GAIN}]))
+        else:
+            self.triggerError('Headamp Gain is not a valid float between -12 and 60')
+
+class Bus(Base):
+    def __init__(self, OSC: OSC, id):
+        super().__init__(OSC, id, 'bus')
+
+class Matrix(Base):
+    def __init__(self, OSC: OSC, id):
+        super().__init__(OSC, id, 'mtx')

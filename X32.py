@@ -35,7 +35,7 @@ while True:
     res = data.replace(b'\x00',b'')
     # print("received data: %s" % data)
     print(res.split(b',')[0].decode())
-    test = ConstructOSCMessage(res.split(b',')[0].decode(), [{'s': 'hello'}, {'i': 545} , {'f': 0.69}])
+    test = ConstructOSCMessage(res.split(b',')[0].decode(), [{'f': random.random()}])
     # print(bytes(PadString(test.MESSAGE) + PadString(',' + test.TYPE_STRING), 'ascii'))
     sock.sendto(bytes(PadString(test.MESSAGE) + PadString(',' + test.TYPE_STRING), 'ascii') + test.VALUE_ARRAY, (UDP_IP, 10024))
 

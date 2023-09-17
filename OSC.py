@@ -1,14 +1,12 @@
-import socket, struct, math, threading, select, time, queue
-import osctypes
+import socket, struct, math, threading, select, time, queue, osctypes, log
 from utils import PadString, DbToFloat, FloatToDb
-
 
 class OSC:
     def __init__(self, ip, port=10023, host=10024, timeout=5) -> None:
         self.IP = ip
         self.PORT = port
         self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.SOCK.bind(('127.0.0.1', host))
+        self.SOCK.bind((self.IP, host))
         self.SOCK.setblocking(0)
         self.HOST = host
         self.TIMEOUT = timeout
@@ -18,24 +16,36 @@ class OSC:
         self.IP = newIP
 
     def send(self, OSCMessage: 'ConstructOSCMessage') -> None:
-        print(f'[CLIENT] SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}')
+
+        if OSCMessage.MESSAGE[0] != '/':
+            raise Exception('Message must start with /')
+
+        log.info(f"SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}")
+        
         self.SOCK.sendto(bytes(PadString(OSCMessage.MESSAGE) + PadString(',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
 
-        # serverThread = threading.Thread(target=self.receive, args=(OSCMessage, self.decode))
-        # serverThread.start()
-
-        # return self.QUEUE.get()
-
-        return self.receive(OSCMessage, self.decode)
+        if OSCMessage.VALUE_ARRAY == b'':
+            return self.receive(OSCMessage, self.decode)
+        else:
+            return
 
     def receive(self, msg: 'ConstructOSCMessage', callback):
         ready = select.select([self.SOCK], [], [], 5)
 
         if ready[0]:
             data, addr = self.SOCK.recvfrom(self.HOST)
-            print(f"[CLIENT] RECEIVED MESSAGE: {data} from {addr[0]}")
-            res = callback(data)
-            return res
+
+            log.info(f"RECEIVED MESSAGE: {data} {addr[0]}")
+
+            m, _ =  [e for e in data.split(b',') if e]
+
+            m = m.strip(b'\x00').decode('ascii')
+
+            if m == msg.MESSAGE:
+                res = callback(data)
+                return res
+            else:
+                raise Exception('Observed wrong packet')
 
     def decode(self, data):
 

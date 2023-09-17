@@ -2,9 +2,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from fader import Fader
 from OSC import OSC, ConstructOSCMessage
 from channel import Channel
-import os
-import sys
-import time
+import sys, log
+from utils import TypeToName
 
 QSettings = uic.loadUiType("ui/settings.ui")[0]
 
@@ -25,7 +24,7 @@ class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__(parent=None)
 
-        self.OSC = OSC('127.0.0.1')
+        self.OSC = OSC('192.168.0.54')
 
         self._rootLayout = QtWidgets.QHBoxLayout()
 
@@ -46,10 +45,11 @@ class Window(QtWidgets.QMainWindow):
         self._faders = []
 
         for i in range(32):
-            ch = Channel(i)
+            ch = Channel(self.OSC, i + 1)
+            ch.updateName(f'{TypeToName(ch.TYPE)} {ch.ID}')
             FADER = Fader(self.OSC, ch)
-            FADER.setObjectName(f'fader-{i}')
-            FADER.faderUpdate(0)
+            # FADER.setObjectName(f'fader-{i}')
+            # FADER.faderUpdate(0)
             faderLayout.addWidget(FADER)
             self._faders.append(FADER)
 
@@ -75,6 +75,11 @@ class Window(QtWidgets.QMainWindow):
         editMenu = menubar.addMenu('&Edit')
         editMenu.addAction(changeIP)
         changeIP.triggered.connect(self.openSettings)
+
+    def closeEvent(self, *args, **kwargs):
+        # self.OSC.send(ConstructOSCMessage('/shutdown'))
+        pass
+
         
 
 

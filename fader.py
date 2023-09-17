@@ -47,7 +47,8 @@ class _Bar(QtWidgets.QWidget):
         painter.fillRect(rect, brush)
 
         # Get current state.
-        meter = self.parent().meter
+        # meter = self.parent().meter
+        meter = 0.5
 
         # Define our canvas.
         d_height = painter.device().height() - (self._padding * 2)
@@ -79,11 +80,11 @@ class _Bar(QtWidgets.QWidget):
 
 class Fader(QtWidgets.QWidget):
 
-    def __init__(self, OSC: 'OSC', channel: 'Channel', *args, **kwargs):
+    def __init__(self, OSC: 'OSC', source: 'Channel', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.OSC = OSC
-        self.CHANNEL = channel
+        self.SOURCE = source
         
         self.muted = False
         self.soloed = False
@@ -94,7 +95,7 @@ class Fader(QtWidgets.QWidget):
 
         # Add label
         self._nameLabel = QtWidgets.QLabel()
-        self._nameLabel.setText(self.name)
+        self._nameLabel.setText(self.SOURCE.NAME)
         self._nameLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self._nameLabel)
 
@@ -107,18 +108,18 @@ class Fader(QtWidgets.QWidget):
         self._bar = _Bar(["#00ff00", "#00ff00", "#fca503", "#fca503", "#fca503", "#ff0000"])
         layout.addWidget(self._bar, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self._volumeSlider = QtWidgets.QSlider()
-        self._volumeSlider.setRange(-90, 10)
-        self._volumeSlider.setMinimumHeight(300)
-        self.helperSetSliderIntValue(self._volumeSlider, self.volume)
-        self._volumeSlider.valueChanged.connect(self.faderUpdate)
-        layout.addWidget(self._volumeSlider, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        self._gainSlider = QtWidgets.QSlider()
+        self._gainSlider.setRange(-90, 10)
+        self._gainSlider.setMinimumHeight(300)
+        self.helperSetSliderIntValue(self._gainSlider, self.SOURCE.GAIN)
+        self._gainSlider.valueChanged.connect(self.faderUpdate)
+        layout.addWidget(self._gainSlider, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Add volume label
-        self._volumeLabel = QtWidgets.QLabel()
-        self._volumeLabel.setText('0db')
-        self._volumeLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self._volumeLabel)
+        self._gainLabel = QtWidgets.QLabel()
+        self._gainLabel.setText('0db')
+        self._gainLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self._gainLabel)
         self.setLayout(layout)
 
         # Add mute button
@@ -143,16 +144,13 @@ class Fader(QtWidgets.QWidget):
 
 
     def faderUpdate(self, val):
-        self._volumeLabel.setText(f'{"-∞" if val == -90 else val}db')
-        self.volume = DbToFloat(val)
-        self._volumeSlider.setValue(val)
-        self.meterUpdate(DbToFloat(val))
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/mix/fader', [{'f': self.volume}]))
+        self._gainLabel.setText(f'{"-∞" if val == -90 else val}db')
+        self._gainSlider.setValue(val)
+        self.SOURCE.updateGain(DbToFloat(val))
 
     def muteToggle(self):
-        self.muted = not self.muted
-        self._muteButton.setText('Muted' if self.muted else 'Mute')
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/mix/on', [{'f': 1 if self.muted else 0}]))
+        self.SOURCE.updateMute(not self.SOURCE.MUTE)
+        self._muteButton.setText('Mute' if self.SOURCE.MUTE else 'Muted')
 
     def soloToggle(self):
         self.soloed = not self.soloed
@@ -162,7 +160,7 @@ class Fader(QtWidgets.QWidget):
     def selectToggle(self):
         self.selected = not self.selected
         if self.selected:
-            self.edit = QEditClass(self.OSC, self.ID, self.TYPE)
+            self.edit = QEditClass(self.OSC, self.SOURCE)
             self.edit.show()
             # self.edit
             # self.edit.closeEvent
