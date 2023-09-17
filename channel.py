@@ -38,9 +38,7 @@ class Base:
         self.GAIN = 0
         
 
-        self.MUTE = False
-
-        
+        self.MUTE = False 
 
     def __str__(self) -> str:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
@@ -139,12 +137,21 @@ class Channel(Base):
     def __init__(self, OSC: 'OSC', id) -> None:
         super().__init__(OSC, id, 'ch')
 
-        self.HEADAMP_SOURCE, = self.OSC.send(ConstructOSCMessage(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
-        self.HEADAMP_GAIN, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
+        self.HEADAMP_SOURCE = 0
+        self.HEADAMP_GAIN = 0
+
+        self.HP_ON = False
+        self.HP_FREQ = 0
 
         self.populateFields()
 
     def populateFields(self):
+        self.HEADAMP_SOURCE, = self.OSC.send(ConstructOSCMessage(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
+        self.HEADAMP_GAIN, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
+
+        print(self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon')))
+        self.HP_FREQ, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpf'))
+
         super().populateFields()
 
     def updateHeadampGain(self, val: float) -> None:
@@ -153,6 +160,21 @@ class Channel(Base):
             self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain', [{'f': self.HEADAMP_GAIN}]))
         else:
             self.triggerError('Headamp Gain is not a valid float between -12 and 60')
+
+    def updateHighPassToggle(self, val: bool) -> None:
+        if type(val) == bool:
+            self.HP_ON = val
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon', [{'i': 0 if self.HP_ON else 1}]))
+        else:
+            self.triggerError('Highpass toggle is not a boolean')
+
+    def updateHighPassFreq(self, val: float) -> None:
+        if type(val) == float and val >= 20 and val <= 400:
+            self.HP_FREQ = val
+            self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpf', [{'f': self.HP_FREQ}]))
+        else:
+            self.triggerError('Highpass frequency is not a valid float between 20 and 400')
+
 
 class Bus(Base):
     def __init__(self, OSC: OSC, id):

@@ -104,9 +104,8 @@ class QEditClass(QtWidgets.QWidget, QEdit):
         self._gainLevel.setText(f'{"" if val < 0 else "+"}{float(val)}db')
 
     def lowcutChanged(self, val):
+        self.SOURCE.updateHighPassFreq(float(val))
         self._lowcutLevel.setText(f'{val}hz')
-        self.lowcut = val
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/eq/1/g', [{'f': self.lowcut}]))
 
     def delayChanged(self, val):
         self._delayLevel.setText(f'{float(val)}ms')
@@ -114,9 +113,8 @@ class QEditClass(QtWidgets.QWidget, QEdit):
         self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/delay/time', [{'f': self.delay}]))
 
     def lowcutToggled(self):
-        self.lowcutToggle = not self.lowcutToggle
-        self._lowcutToggle.setText('Disable' if self.lowcutToggle else 'Enable')
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/eq/on', [{'f': 1 if self.lowcutToggle else 0}]))
+        self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
+        self._lowcutToggle.setText('Disable' if self.SOURCE.HP_ON else 'Enable')
     
     def delayToggled(self):
         self.delayToggle = not self.delayToggle
