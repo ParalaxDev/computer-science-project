@@ -13,6 +13,7 @@ class OSC:
         self.QUEUE = queue.Queue()
 
     def setIP(self, newIP):
+        # TODO: ip validation
         self.IP = newIP
 
     def send(self, OSCMessage: 'ConstructOSCMessage') -> None:
@@ -45,7 +46,11 @@ class OSC:
                 res = callback(data)
                 return res
             else:
+                log.error('Unexpected packet')
                 raise Exception('Observed wrong packet')
+        else:
+            log.error('Connection timed out')
+            return (0, )
 
     def decode(self, data):
 

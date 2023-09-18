@@ -1,16 +1,6 @@
-from utils import TypeToName
+from utils import TypeToName, Colours
 from OSC import OSC, ConstructOSCMessage
 import log
-
-class Colours:
-    OFF = 0
-    RED = 1
-    GREEN = 2
-    YELLOW = 3
-    BLUE = 4
-    MAGENTA = 5
-    CYAN = 6
-    WHITE = 7
 
 class Base:
     def __init__(self, OSC: 'OSC', id, type) -> None:
@@ -24,26 +14,12 @@ class Base:
         self.TYPE = type
         self.UUID = self.TYPE + str(self.ID)
 
-        self.NAME = ''
-        self.COLOUR = Colours.OFF
-        self.SOURCE = 0
-        self.LINK = False
-
-        self.HEADAMP_SOURCE = 0
-        self.HEADAMP_GAIN = 0
-
-        self.DELAY_ON = False
-        self.DELAY_TIME = 0
-
-        self.GAIN = 0
-        
-
-        self.MUTE = False 
+        self.loadValues()
 
     def __str__(self) -> str:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
-    def populateFields(self):
+    def loadValues(self) -> None:
         self.NAME, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
         self.COLOUR, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
         self.SOURCE, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
@@ -57,7 +33,7 @@ class Base:
         self.MUTE, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
 
     def triggerError(self, msg: str) -> None:
-        log.error({msg})
+        log.error(msg)
 
     def updateName(self, val: str) -> None:
         if type(val) == str and len(val) > 12 or len(val) < 1:
@@ -137,22 +113,19 @@ class Channel(Base):
     def __init__(self, OSC: 'OSC', id) -> None:
         super().__init__(OSC, id, 'ch')
 
-        self.HEADAMP_SOURCE = 0
-        self.HEADAMP_GAIN = 0
+        self.loadValues()
 
-        self.HP_ON = False
-        self.HP_FREQ = 0
+    def loadValues(self):
 
-        self.populateFields()
+        super().loadValues()
 
-    def populateFields(self):
         self.HEADAMP_SOURCE, = self.OSC.send(ConstructOSCMessage(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
         self.HEADAMP_GAIN, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
 
-        print(self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon')))
+        self.HP_ON, self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon'))
         self.HP_FREQ, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpf'))
 
-        super().populateFields()
+        self.PHANTOM = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom', [{'i': 0 if self.PHANTOM else 1}]))
 
     def updateHeadampGain(self, val: float) -> None:
         if type(val) == float and val >= -12 and val <= 60:
@@ -175,6 +148,12 @@ class Channel(Base):
         else:
             self.triggerError('Highpass frequency is not a valid float between 20 and 400')
 
+    def updatePhantomPowerToggle(self, val: bool) -> None:
+        if type(val) == bool:
+            self.PHANTOM = val
+            self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom', [{'i': 0 if self.PHANTOM else 1}]))
+        else:
+            self.triggerError('Phantom power toggle is not a boolean')
 
 class Bus(Base):
     def __init__(self, OSC: OSC, id):

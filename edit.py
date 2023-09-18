@@ -87,7 +87,7 @@ class QEditClass(QtWidgets.QWidget, QEdit):
         self.setWindowTitle(f'Edit {SOURCE.NAME}')
         self.SOURCE = SOURCE
 
-        self.updateMeter(0.5)
+        self.updateMeter(1)
 
         self._meter = _Bar(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
         self._meter.setGeometry(20, 70, 31, 201)
@@ -99,6 +99,28 @@ class QEditClass(QtWidgets.QWidget, QEdit):
         self._lowcutToggle.clicked.connect(self.lowcutToggled)
         self._delayToggle.clicked.connect(self.delayToggled)
 
+        self._colourDropdown.currentTextChanged.connect(self.colourChanged)
+        self._channelName.textChanged.connect(self.nameChanged)
+
+        self._channelName.setText(self.SOURCE.NAME)
+        self._gainDial.setValue(int(self.SOURCE.HEADAMP_GAIN))
+        self._lowcutDial.setValue(int(self.SOURCE.HP_FREQ))
+        self._delayDial.setValue(int(self.SOURCE.DELAY_TIME))
+        self._colourDropdown.setCurrentIndex(self.SOURCE.COLOUR)
+        self._linkToggle.clicked.connect(self.linkToggled)
+
+    def linkToggled(self):
+        self.SOURCE.updateLink(not self.SOURCE.LINK)
+
+    # def linkToggled(self):
+    #     self.SOURCE.updateLink(not self.SOURCE.LINK)
+
+    def nameChanged(self, val):
+        self.SOURCE.updateName(val)
+
+    def colourChanged(self, val):
+        self.SOURCE.updateColour(str(val).lower())
+
     def trimChanged(self, val):
         self.SOURCE.updateHeadampGain(float(val))
         self._gainLevel.setText(f'{"" if val < 0 else "+"}{float(val)}db')
@@ -108,18 +130,16 @@ class QEditClass(QtWidgets.QWidget, QEdit):
         self._lowcutLevel.setText(f'{val}hz')
 
     def delayChanged(self, val):
+        self.SOURCE.updateDelayTime(val)
         self._delayLevel.setText(f'{float(val)}ms')
-        self.delay = val
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/delay/time', [{'f': self.delay}]))
 
     def lowcutToggled(self):
         self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
         self._lowcutToggle.setText('Disable' if self.SOURCE.HP_ON else 'Enable')
     
     def delayToggled(self):
-        self.delayToggle = not self.delayToggle
-        self._delayToggle.setText('Disable' if self.delayToggle else 'Enable')
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/delay/on', [{'f': 1 if self.delayToggle else 0}]))
+        self.SOURCE.updateDelay(not self.SOURCE.DELAY_ON)
+        self._delayToggle.setText('Disable' if self.SOURCE.DELAY_ON else 'Enable')
 
     def updateMeter(self, val):
         self.meter = val

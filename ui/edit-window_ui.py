@@ -177,7 +177,7 @@ class Ui_Form(object):
         self._colourDropdown.setItemText(1, QCoreApplication.translate("Form", u"Green", None))
         self._colourDropdown.setItemText(2, QCoreApplication.translate("Form", u"Yellow", None))
         self._colourDropdown.setItemText(3, QCoreApplication.translate("Form", u"Blue", None))
-        self._colourDropdown.setItemText(4, QCoreApplication.translate("Form", u"Pink", None))
+        self._colourDropdown.setItemText(4, QCoreApplication.translate("Form", u"Magenta", None))
         self._colourDropdown.setItemText(5, QCoreApplication.translate("Form", u"Cyan", None))
         self._colourDropdown.setItemText(6, QCoreApplication.translate("Form", u"White", None))
 

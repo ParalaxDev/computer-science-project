@@ -46,7 +46,7 @@ class Window(QtWidgets.QMainWindow):
 
         for i in range(32):
             ch = Channel(self.OSC, i + 1)
-            ch.updateName(f'{TypeToName(ch.TYPE)} {ch.ID}')
+            # ch.updateName(f'{TypeToName(ch.TYPE)} {ch.ID}')
             FADER = Fader(self.OSC, ch)
             # FADER.setObjectName(f'fader-{i}')
             # FADER.faderUpdate(0)

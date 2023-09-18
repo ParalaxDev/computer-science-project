@@ -26,3 +26,13 @@ def PadString(msg):
     str_length = math.ceil((len(msg)+1) / 4.0) * 4
     nulls = '\0' * (str_length - len(msg))
     return msg + nulls
+
+class Colours:
+    OFF = 0
+    RED = 1
+    GREEN = 2
+    YELLOW = 3
+    BLUE = 4
+    MAGENTA = 5
+    CYAN = 6
+    WHITE = 7
