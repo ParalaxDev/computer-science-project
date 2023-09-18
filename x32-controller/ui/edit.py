@@ -1,12 +1,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtCore import Qt
-from OSC import OSC, ConstructOSCMessage
 from PySide6.QtCore import QRect
-from utils import FloatToDb, DbToFloat, TypeToName
-from channel import Channel
+import osc, core, utils
 
-
-QEdit = uic.loadUiType("ui/edit-window.ui")[0]
+QEdit = uic.loadUiType("x32-controller/assets/ui/edit-window.ui")[0]
 
 class _Bar(QtWidgets.QWidget):
     def __init__(self, steps, *args, **kwargs):
@@ -78,9 +75,8 @@ class _Bar(QtWidgets.QWidget):
     def _trigger_refresh(self):
         self.update()
 
-
-class QEditClass(QtWidgets.QWidget, QEdit):
-    def __init__(self, OSC: 'OSC', SOURCE: 'Channel', parent=None):
+class EditWindow(QtWidgets.QWidget, QEdit):
+    def __init__(self, OSC: osc.controller, SOURCE: core.channel or core.bus or core.matrix, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.OSC = OSC
@@ -143,5 +139,5 @@ class QEditClass(QtWidgets.QWidget, QEdit):
 
     def updateMeter(self, val):
         self.meter = val
-        self._meterLabel.setText(f'{FloatToDb(val)}db')
+        self._meterLabel.setText(f'{utils.FloatToDb(val)}db')
         # self._meter._trigger_refresh()
