@@ -122,10 +122,10 @@ class Channel(Base):
         self.HEADAMP_SOURCE, = self.OSC.send(ConstructOSCMessage(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
         self.HEADAMP_GAIN, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
 
-        self.HP_ON, self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon'))
+        self.HP_ON, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon'))
         self.HP_FREQ, = self.OSC.send(ConstructOSCMessage(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpf'))
 
-        self.PHANTOM = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom', [{'i': 0 if self.PHANTOM else 1}]))
+        self.PHANTOM, = self.OSC.send(ConstructOSCMessage(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom'))
 
     def updateHeadampGain(self, val: float) -> None:
         if type(val) == float and val >= -12 and val <= 60:
