@@ -1,30 +1,13 @@
-from PyQt6 import QtCore, QtGui, QtWidgets, uic
-from fader import Fader
-from OSC import OSC, ConstructOSCMessage
-from channel import Channel
-import sys, log
-from utils import TypeToName
+from PyQt6 import QtCore, QtWidgets
+import osc
+import core
+import ui, ui.widgets
 
-QSettings = uic.loadUiType("ui/settings.ui")[0]
-
-class QSettingsClass(QtWidgets.QDialog, QSettings):
-    def __init__(self, OSC: 'OSC', parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.OSC = OSC
-        self.lineEdit.setText(self.OSC.IP if self.OSC.IP else 'Unknown')
-        self.buttonBox.accepted.connect(self._submitSettings)
-
-    def _submitSettings(self):
-        print(f'submitted {self.lineEdit.text()}')
-        # TODO: IP validation
-        self.OSC.setIP(self.lineEdit.text())
-
-class Window(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__(parent=None)
 
-        self.OSC = OSC('192.168.0.54')
+        self.OSC = osc.controller('192.168.0.54')
 
         self._rootLayout = QtWidgets.QHBoxLayout()
 
@@ -33,7 +16,6 @@ class Window(QtWidgets.QMainWindow):
         self._scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._scrollArea.setMinimumHeight(500)
         self._scrollArea.setFixedWidth(800)
-
 
         faderLayout = QtWidgets.QHBoxLayout(self)
         faderWidget = QtWidgets.QWidget()
@@ -45,20 +27,14 @@ class Window(QtWidgets.QMainWindow):
         self._faders = []
 
         for i in range(32):
-            ch = Channel(self.OSC, i + 1)
-            # ch.updateName(f'{TypeToName(ch.TYPE)} {ch.ID}')
-            FADER = Fader(self.OSC, ch)
-            # FADER.setObjectName(f'fader-{i}')
-            # FADER.faderUpdate(0)
+            ch = core.channel(self.OSC, i + 1)
+            FADER = ui.widgets.Fader(self.OSC, ch)
             faderLayout.addWidget(FADER)
             self._faders.append(FADER)
 
         self._scrollArea.setWidget(faderWidget)
         self._scrollArea.setWidgetResizable(True)
         self.setLayout(self._rootLayout)
-        # self._createMenuBar()
-        
-        
     
     def resizeEvent(self, event):
         self._scrollArea.setFixedWidth(self.width())
@@ -66,7 +42,7 @@ class Window(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.resizeEvent(self, event)
 
     def openSettings(self):
-        settings = QSettingsClass(self.OSC)
+        settings = ui.SettingsWindow(self.OSC)
         settings.exec()
 
     def _createMenuBar(self):
@@ -81,12 +57,3 @@ class Window(QtWidgets.QMainWindow):
         pass
 
         
-
-
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = Window()
-    window.setGeometry(500, 300, 800, 520)
-    window.show()
-    app.exec()

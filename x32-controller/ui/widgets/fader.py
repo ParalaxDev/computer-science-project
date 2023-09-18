@@ -1,10 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
-import math, random, time
-from OSC import OSC, ConstructOSCMessage
-from edit import QEditClass
-from utils import FloatToDb, DbToFloat, TypeToName
-from channel import Channel
+import osc, core, utils, ui
 
 class _Bar(QtWidgets.QWidget):
     def __init__(self, steps, *args, **kwargs):
@@ -80,7 +76,7 @@ class _Bar(QtWidgets.QWidget):
 
 class Fader(QtWidgets.QWidget):
 
-    def __init__(self, OSC: 'OSC', source: 'Channel', *args, **kwargs):
+    def __init__(self, OSC: osc.controller, source: core.channel, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.OSC = OSC
@@ -146,21 +142,16 @@ class Fader(QtWidgets.QWidget):
     def faderUpdate(self, val):
         self._gainLabel.setText(f'{"-∞" if val == -90 else val}db')
         self._gainSlider.setValue(val)
-        self.SOURCE.updateGain(DbToFloat(val))
+        self.SOURCE.updateGain(utils.DbToFloat(val))
 
     def muteToggle(self):
         self.SOURCE.updateMute(not self.SOURCE.MUTE)
         self._muteButton.setText('Mute' if self.SOURCE.MUTE else 'Muted')
 
-    def soloToggle(self):
-        self.soloed = not self.soloed
-        self._soloButton.setText('Soloed' if self.soloed else 'Solo')
-        self.OSC.send(ConstructOSCMessage(f'/ch/{str(self.ID+1).zfill(2)}/mix/on', [{'f': 1 if self.muted else 0}]))
-
     def selectToggle(self):
         self.selected = not self.selected
         if self.selected:
-            self.edit = QEditClass(self.OSC, self.SOURCE)
+            self.edit = ui.EditWindow(self.OSC, self.SOURCE)
             self.edit.show()
             # self.edit
             # self.edit.closeEvent

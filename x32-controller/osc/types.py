@@ -44,3 +44,13 @@ def get_blob(dgram: bytes, start_index: int):
     total_size = size + (-size % _BLOB_DGRAM_PAD)
 
     return dgram[int_offset:int_offset + size], int_offset + total_size
+
+class Colours:
+    OFF = 0
+    RED = 1
+    GREEN = 2
+    YELLOW = 3
+    BLUE = 4
+    MAGENTA = 5
+    CYAN = 6
+    WHITE = 7
