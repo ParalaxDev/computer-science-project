@@ -4,10 +4,10 @@ import core
 import ui, ui.widgets
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, osc: osc.controller):
         super().__init__(parent=None)
 
-        self.OSC = osc.controller('192.168.0.54')
+        self.OSC = osc
 
         self._rootLayout = QtWidgets.QHBoxLayout()
 
