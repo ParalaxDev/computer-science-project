@@ -1,11 +1,13 @@
 import ui, osc
 from PyQt6 import QtWidgets
 import sys
+import utils.log
 
 if __name__ == "__main__":
-    osc = osc.controller('10.4.36.147')
+    utils.log.setLogging(True)
+    osc = osc.controller('192.168.0.54')
     app = QtWidgets.QApplication(sys.argv)
     window = ui.MainWindow(osc)
-    window.setGeometry(500, 300, 800, 520)
+    window.setGeometry(500, 300, 800, 550)
     window.show()
     app.exec()

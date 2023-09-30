@@ -54,3 +54,11 @@ class Colours:
     MAGENTA = 5
     CYAN = 6
     WHITE = 7
+
+class EQTypes:
+    LCut = 0
+    LShv = 1
+    PEQ = 2
+    VEQ = 3
+    HShv = 4
+    HCut = 5

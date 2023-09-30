@@ -26,18 +26,25 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._colourDropdown.currentTextChanged.connect(self.colourChanged)
         self._channelName.textChanged.connect(self.nameChanged)
 
+        self._linkToggle.clicked.connect(self.linkToggled)
+        self._phantomToggle.clicked.connect(self.phantomToggled)
+
         self._channelName.setText(self.SOURCE.NAME)
         self._gainDial.setValue(int(self.SOURCE.HEADAMP_GAIN))
         self._lowcutDial.setValue(int(self.SOURCE.HP_FREQ))
         self._delayDial.setValue(int(self.SOURCE.DELAY_TIME))
         self._colourDropdown.setCurrentIndex(self.SOURCE.COLOUR)
-        self._linkToggle.clicked.connect(self.linkToggled)
+        self._linkToggle.setChecked(self.SOURCE.LINK)
+        self._phantomToggle.setChecked(self.SOURCE.PHANTOM)
+        
 
     def linkToggled(self):
         self.SOURCE.updateLink(not self.SOURCE.LINK)
+        self._linkToggle.setChecked(not self.SOURCE.LINK)
 
-    # def linkToggled(self):
-    #     self.SOURCE.updateLink(not self.SOURCE.LINK)
+    def phantomToggled(self):
+        self.SOURCE.updatePhantomPowerToggle(not self.SOURCE.PHANTOM)
+        self._phantomToggle.setChecked(not self.SOURCE.PHANTOM)
 
     def nameChanged(self, val):
         self.SOURCE.updateName(val)
@@ -59,11 +66,11 @@ class EditWindow(QtWidgets.QWidget, QEdit):
 
     def lowcutToggled(self):
         self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
-        self._lowcutToggle.setText('Disable' if self.SOURCE.HP_ON else 'Enable')
+        self._lowcutToggle.setText('Disable' if not self.SOURCE.HP_ON else 'Enable')
     
     def delayToggled(self):
         self.SOURCE.updateDelay(not self.SOURCE.DELAY_ON)
-        self._delayToggle.setText('Disable' if self.SOURCE.DELAY_ON else 'Enable')
+        self._delayToggle.setText('Disable' if not self.SOURCE.DELAY_ON else 'Enable')
 
     def updateMeter(self, val):
         self.meter = val

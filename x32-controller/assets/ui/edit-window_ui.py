@@ -34,6 +34,7 @@ class Ui_Form(object):
         self._linkToggle.setObjectName(u"_linkToggle")
         self._linkToggle.setGeometry(QRect(320, 10, 21, 21))
         self._linkToggle.setCheckable(True)
+        self._linkToggle.setChecked(False)
         self._phantomToggle = QToolButton(self.config)
         self._phantomToggle.setObjectName(u"_phantomToggle")
         self._phantomToggle.setGeometry(QRect(350, 10, 31, 21))

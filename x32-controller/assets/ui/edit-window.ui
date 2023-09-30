@@ -47,6 +47,9 @@
      <property name="checkable">
       <bool>true</bool>
      </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
     </widget>
     <widget class="QToolButton" name="_phantomToggle">
      <property name="geometry">

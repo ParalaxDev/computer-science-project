@@ -11,3 +11,13 @@ def DbToFloat(db):
     elif (db < -10): f = (db + 50) / 80
     elif (db <= 10): f = (db + 30) / 40
     return int(f * 1023.5) / 1023.0
+
+def FloatToFader(OldValue, NewMin = -90, NewMax = 10, OldMax = 1, OldMin = 0):
+    OldRange = (OldMax - OldMin)
+    if OldRange == 0:
+        NewValue = NewMin
+    else:
+        NewRange = (NewMax - NewMin)  
+        NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+
+    return NewValue

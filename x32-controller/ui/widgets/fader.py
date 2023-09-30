@@ -59,12 +59,20 @@ class Fader(QtWidgets.QWidget):
         # self._soloButton.clicked.connect(self.soloToggle)
         # layout.addWidget(self._soloButton)
 
+        self._muteButton.setChecked(self.SOURCE.MUTE)
+        self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
+
+        self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
+        self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
+        print(self.SOURCE.GAIN)
+
+
+
         self.setLayout(layout)
 
     def meterUpdate(self, val):
         self.meter = val
         self._bar._trigger_refresh()
-
 
     def faderUpdate(self, val):
         self._gainLabel.setText(f'{"-∞" if val == -90 else val}db')
@@ -73,7 +81,9 @@ class Fader(QtWidgets.QWidget):
 
     def muteToggle(self):
         self.SOURCE.updateMute(not self.SOURCE.MUTE)
-        self._muteButton.setText('Mute' if self.SOURCE.MUTE else 'Muted')
+        print(self.SOURCE.MUTE)
+        self._muteButton.setChecked(self.SOURCE.MUTE)
+        self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
 
     def selectToggle(self):
         self.selected = not self.selected
