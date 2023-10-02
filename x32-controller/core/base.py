@@ -154,8 +154,8 @@ class Base:
 
     def updateGateRange(self, val: float) -> None:
         if type(val) == float and val > 3 or val < 60:
-            self.GATE_THRESH = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
+            self.GATE_RANGE = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range', [{'f': round(self.GATE_RANGE, 1)}]))
         else:
             self.triggerError('Gate range value is not between 3 and 60 db')
 

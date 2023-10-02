@@ -42,10 +42,16 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._gateGraph.setGeometry(10, 10, 210, 260)
         self._gateGraph.setParent(self.gate)
         self._gateThreshSlider.valueChanged.connect(self.gateThreshChanged)
+        self._gateRangeSlider.valueChanged.connect(self.gateRangeChanged)
         
     def gateThreshChanged(self, val):
         self.SOURCE.updateGateThresh(float(val))
         self._gateThreshLabel.setText(f'{val}hz')
+        self._gateGraph._trigger_refresh()
+
+    def gateRangeChanged(self, val):
+        self.SOURCE.updateGateRange(float(val))
+        self._gateRangeLabel.setText(f'{val}db')
         self._gateGraph._trigger_refresh()
 
     def linkToggled(self):
