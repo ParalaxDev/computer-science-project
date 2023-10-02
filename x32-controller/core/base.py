@@ -30,6 +30,7 @@ class Base:
 
         self.GATE_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
         self.GATE_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
+        self.GATE_RANGE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range'))
 
         self.DYN_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
         self.DYN_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
@@ -150,6 +151,13 @@ class Base:
             self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
         else:
             self.triggerError('Gate threshold value is not between -80 and 0 db')
+
+    def updateGateRange(self, val: float) -> None:
+        if type(val) == float and val > 3 or val < 60:
+            self.GATE_THRESH = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
+        else:
+            self.triggerError('Gate range value is not between 3 and 60 db')
 
     def updateDynamics(self, val: bool) -> None:
         if type(val) == bool:
