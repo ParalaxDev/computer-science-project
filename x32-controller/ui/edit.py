@@ -14,7 +14,8 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self.updateMeter(1)
 
         self._meter = ui.widgets.Meter(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
-        self._meter.setGeometry(20, 70, 31, 201)
+        self._meter.setGeometry(20, 50, 31, 201)
+        self._meter.setParent(self.config)
         
         self._gainDial.valueChanged.connect(self.trimChanged)
         self._lowcutDial.valueChanged.connect(self.lowcutChanged)
@@ -36,7 +37,16 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._colourDropdown.setCurrentIndex(self.SOURCE.COLOUR)
         self._linkToggle.setChecked(self.SOURCE.LINK)
         self._phantomToggle.setChecked(self.SOURCE.PHANTOM)
+
+        self._gateGraph = ui.widgets.GateGraph()
+        self._gateGraph.setGeometry(10, 10, 210, 260)
+        self._gateGraph.setParent(self.gate)
+        self._gateThreshSlider.valueChanged.connect(self.gateThreshChanged)
         
+    def gateThreshChanged(self, val):
+        self.SOURCE.updateGateThresh(float(val))
+        self._gateThreshLabel.setText(f'{val}hz')
+        self._gateGraph._trigger_refresh()
 
     def linkToggled(self):
         self.SOURCE.updateLink(not self.SOURCE.LINK)

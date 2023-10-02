@@ -16,8 +16,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDial, QGridLayout,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QTabWidget, QToolButton, QWidget)
+    QHBoxLayout, QLabel, QLineEdit, QPushButton,
+    QSizePolicy, QSlider, QTabWidget, QToolButton,
+    QVBoxLayout, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -152,6 +153,94 @@ class Ui_Form(object):
         self.tabWidget.addTab(self.config, "")
         self.gate = QWidget()
         self.gate.setObjectName(u"gate")
+        self._gateGraph = QWidget(self.gate)
+        self._gateGraph.setObjectName(u"_gateGraph")
+        self._gateGraph.setGeometry(QRect(10, 10, 211, 261))
+        self.verticalLayoutWidget_4 = QWidget(self.gate)
+        self.verticalLayoutWidget_4.setObjectName(u"verticalLayoutWidget_4")
+        self.verticalLayoutWidget_4.setGeometry(QRect(230, 0, 161, 271))
+        self.verticalLayout_3 = QVBoxLayout(self.verticalLayoutWidget_4)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self._gateToggle = QPushButton(self.verticalLayoutWidget_4)
+        self._gateToggle.setObjectName(u"_gateToggle")
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self._gateToggle.sizePolicy().hasHeightForWidth())
+        self._gateToggle.setSizePolicy(sizePolicy)
+        self._gateToggle.setCheckable(False)
+        self._gateToggle.setChecked(False)
+        self._gateToggle.setFlat(False)
+
+        self.verticalLayout_3.addWidget(self._gateToggle)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self._threshTitle = QLabel(self.verticalLayoutWidget_4)
+        self._threshTitle.setObjectName(u"_threshTitle")
+        self._threshTitle.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self._threshTitle)
+
+        self._gateThreshSlider = QSlider(self.verticalLayoutWidget_4)
+        self._gateThreshSlider.setObjectName(u"_gateThreshSlider")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self._gateThreshSlider.sizePolicy().hasHeightForWidth())
+        self._gateThreshSlider.setSizePolicy(sizePolicy1)
+        self._gateThreshSlider.setMinimum(-80)
+        self._gateThreshSlider.setMaximum(0)
+        self._gateThreshSlider.setValue(-80)
+        self._gateThreshSlider.setOrientation(Qt.Vertical)
+        self._gateThreshSlider.setInvertedAppearance(False)
+        self._gateThreshSlider.setInvertedControls(False)
+
+        self.verticalLayout.addWidget(self._gateThreshSlider)
+
+        self._gateThreshLabel = QLabel(self.verticalLayoutWidget_4)
+        self._gateThreshLabel.setObjectName(u"_gateThreshLabel")
+        self._gateThreshLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout.addWidget(self._gateThreshLabel)
+
+
+        self.horizontalLayout.addLayout(self.verticalLayout)
+
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self._rangeTitle = QLabel(self.verticalLayoutWidget_4)
+        self._rangeTitle.setObjectName(u"_rangeTitle")
+        self._rangeTitle.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_2.addWidget(self._rangeTitle)
+
+        self._gateRangeSlider = QSlider(self.verticalLayoutWidget_4)
+        self._gateRangeSlider.setObjectName(u"_gateRangeSlider")
+        sizePolicy1.setHeightForWidth(self._gateRangeSlider.sizePolicy().hasHeightForWidth())
+        self._gateRangeSlider.setSizePolicy(sizePolicy1)
+        self._gateRangeSlider.setMinimum(3)
+        self._gateRangeSlider.setMaximum(60)
+        self._gateRangeSlider.setValue(60)
+        self._gateRangeSlider.setOrientation(Qt.Vertical)
+
+        self.verticalLayout_2.addWidget(self._gateRangeSlider)
+
+        self._gateRangeLabel = QLabel(self.verticalLayoutWidget_4)
+        self._gateRangeLabel.setObjectName(u"_gateRangeLabel")
+        self._gateRangeLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_2.addWidget(self._gateRangeLabel)
+
+
+        self.horizontalLayout.addLayout(self.verticalLayout_2)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
+
         self.tabWidget.addTab(self.gate, "")
         self.dynamics = QWidget()
         self.dynamics.setObjectName(u"dynamics")
@@ -162,7 +251,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -194,6 +283,11 @@ class Ui_Form(object):
         self._delayLevel.setText(QCoreApplication.translate("Form", u"0.3ms", None))
         self._meterLabel.setText(QCoreApplication.translate("Form", u"0db", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.config), QCoreApplication.translate("Form", u"Config", None))
+        self._gateToggle.setText(QCoreApplication.translate("Form", u"Enable Gate", None))
+        self._threshTitle.setText(QCoreApplication.translate("Form", u"Threshold", None))
+        self._gateThreshLabel.setText(QCoreApplication.translate("Form", u"-80.0db", None))
+        self._rangeTitle.setText(QCoreApplication.translate("Form", u"Range", None))
+        self._gateRangeLabel.setText(QCoreApplication.translate("Form", u"60.0db", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.gate), QCoreApplication.translate("Form", u"Gate", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.dynamics), QCoreApplication.translate("Form", u"Dynamics", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.eq), QCoreApplication.translate("Form", u"EQ", None))

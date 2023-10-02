@@ -64,9 +64,6 @@ class Fader(QtWidgets.QWidget):
 
         self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
         self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
-        print(self.SOURCE.GAIN)
-
-
 
         self.setLayout(layout)
 
@@ -81,7 +78,6 @@ class Fader(QtWidgets.QWidget):
 
     def muteToggle(self):
         self.SOURCE.updateMute(not self.SOURCE.MUTE)
-        print(self.SOURCE.MUTE)
         self._muteButton.setChecked(self.SOURCE.MUTE)
         self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
 
