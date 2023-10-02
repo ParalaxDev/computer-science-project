@@ -28,33 +28,33 @@ class Base:
         self.DELAY_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
         self.DELAY_TIME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time'))
 
-        self.GATE_ON = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
-        self.GATE_THRESH = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
+        self.GATE_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
+        self.GATE_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
 
-        self.DYN_ON = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
-        self.DYN_THRESH = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
+        self.DYN_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
+        self.DYN_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
 
-        self.EQ_ON = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
+        self.EQ_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
 
-        self.EQ_1_TYPE = None
-        self.EQ_1_F = None
-        self.EQ_1_G = None
-        self.EQ_1_Q = None
+        self.EQ_1_TYPE, = None
+        self.EQ_1_F, = None
+        self.EQ_1_G, = None
+        self.EQ_1_Q, = None
 
-        self.EQ_2_TYPE = None
-        self.EQ_2_F = None
-        self.EQ_2_G = None
-        self.EQ_2_Q = None
+        self.EQ_2_TYPE, = None
+        self.EQ_2_F, = None
+        self.EQ_2_G, = None
+        self.EQ_2_Q, = None
 
-        self.EQ_3_TYPE = None
-        self.EQ_3_F = None
-        self.EQ_3_G = None
-        self.EQ_3_Q = None
+        self.EQ_3_TYPE, = None
+        self.EQ_3_F, = None
+        self.EQ_3_G, = None
+        self.EQ_3_Q, = None
 
-        self.EQ_4_TYPE = None
-        self.EQ_4_F = None
-        self.EQ_4_G = None
-        self.EQ_4_Q = None
+        self.EQ_4_TYPE, = None
+        self.EQ_4_F, = None
+        self.EQ_4_G, = None
+        self.EQ_4_Q, = None
 
         self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
         self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
