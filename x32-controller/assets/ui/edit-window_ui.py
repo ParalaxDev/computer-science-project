@@ -169,7 +169,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self._gateToggle.sizePolicy().hasHeightForWidth())
         self._gateToggle.setSizePolicy(sizePolicy)
-        self._gateToggle.setCheckable(False)
+        self._gateToggle.setCheckable(True)
         self._gateToggle.setChecked(False)
         self._gateToggle.setFlat(False)
 

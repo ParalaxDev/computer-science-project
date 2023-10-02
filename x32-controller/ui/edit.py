@@ -43,6 +43,13 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._gateGraph.setParent(self.gate)
         self._gateThreshSlider.valueChanged.connect(self.gateThreshChanged)
         self._gateRangeSlider.valueChanged.connect(self.gateRangeChanged)
+        self._gateToggle.clicked.connect(self.gateToggled)
+
+    def gateToggled(self, val):
+        self.SOURCE.updateGate(val)
+        self._gateToggle.setChecked(self.SOURCE.GATE_ON)
+        self._gateToggle.setText('Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
+        self._gateGraph._trigger_refresh()
         
     def gateThreshChanged(self, val):
         self.SOURCE.updateGateThresh(float(val))
