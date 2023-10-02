@@ -39,7 +39,6 @@ class Controller:
 
             utils.log.info(f"RECEIVED MESSAGE: {data} {addr[0]}")
 
-            print(data)
             m, _ = [e for e in data.split(b',', 1) if e]
 
             m = m.strip(b'\x00').decode('ascii')
