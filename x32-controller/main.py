@@ -4,7 +4,7 @@ import sys
 import utils.log
 
 if __name__ == "__main__":
-    utils.log.setLogging(True)
+    utils.log.setLogging(False)
     osc = osc.controller('192.168.0.54')
     app = QtWidgets.QApplication(sys.argv)
     window = ui.MainWindow(osc)

@@ -4,7 +4,7 @@ logging = False
 
 def setLogging(val):
     global logging
-    logging = True
+    logging = val
 
 def info(msg):
     if logging:
