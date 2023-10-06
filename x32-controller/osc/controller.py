@@ -39,7 +39,7 @@ class Controller:
 
             utils.log.info(f"RECEIVED MESSAGE: {data} {addr[0]}")
 
-            m, _ =  [e for e in data.split(b',') if e]
+            m, _ = [e for e in data.split(b',', 1) if e]
 
             m = m.strip(b'\x00').decode('ascii')
 
@@ -55,7 +55,7 @@ class Controller:
 
     def decode(self, data):
 
-        _, dgram =  [b',' + e for e in data.split(b',') if e]
+        _, dgram =  [b',' + e for e in data.split(b',', 1) if e]
 
         typetag, index = types.get_string(dgram, 0)
 

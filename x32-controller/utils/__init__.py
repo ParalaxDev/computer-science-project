@@ -1,3 +1,3 @@
 import utils.log
 from utils.pad import PadString as pad
-from utils.conversions import DbToFloat, FloatToDb
+from utils.conversions import DbToFloat, FloatToDb, FloatToFader

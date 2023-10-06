@@ -14,7 +14,8 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self.updateMeter(1)
 
         self._meter = ui.widgets.Meter(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
-        self._meter.setGeometry(20, 70, 31, 201)
+        self._meter.setGeometry(20, 50, 31, 201)
+        self._meter.setParent(self.config)
         
         self._gainDial.valueChanged.connect(self.trimChanged)
         self._lowcutDial.valueChanged.connect(self.lowcutChanged)
@@ -26,18 +27,47 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._colourDropdown.currentTextChanged.connect(self.colourChanged)
         self._channelName.textChanged.connect(self.nameChanged)
 
+        self._linkToggle.clicked.connect(self.linkToggled)
+        self._phantomToggle.clicked.connect(self.phantomToggled)
+
         self._channelName.setText(self.SOURCE.NAME)
         self._gainDial.setValue(int(self.SOURCE.HEADAMP_GAIN))
         self._lowcutDial.setValue(int(self.SOURCE.HP_FREQ))
         self._delayDial.setValue(int(self.SOURCE.DELAY_TIME))
         self._colourDropdown.setCurrentIndex(self.SOURCE.COLOUR)
-        self._linkToggle.clicked.connect(self.linkToggled)
+        self._linkToggle.setChecked(self.SOURCE.LINK)
+        self._phantomToggle.setChecked(self.SOURCE.PHANTOM)
+
+        self._gateGraph = ui.widgets.GateGraph()
+        self._gateGraph.setGeometry(10, 10, 210, 260)
+        self._gateGraph.setParent(self.gate)
+        self._gateThreshSlider.valueChanged.connect(self.gateThreshChanged)
+        self._gateRangeSlider.valueChanged.connect(self.gateRangeChanged)
+        self._gateToggle.clicked.connect(self.gateToggled)
+
+    def gateToggled(self, val):
+        self.SOURCE.updateGate(val)
+        self._gateToggle.setChecked(self.SOURCE.GATE_ON)
+        self._gateToggle.setText('Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
+        self._gateGraph._trigger_refresh()
+        
+    def gateThreshChanged(self, val):
+        self.SOURCE.updateGateThresh(float(val))
+        self._gateThreshLabel.setText(f'{val}hz')
+        self._gateGraph._trigger_refresh()
+
+    def gateRangeChanged(self, val):
+        self.SOURCE.updateGateRange(float(val))
+        self._gateRangeLabel.setText(f'{val}db')
+        self._gateGraph._trigger_refresh()
 
     def linkToggled(self):
         self.SOURCE.updateLink(not self.SOURCE.LINK)
+        self._linkToggle.setChecked(not self.SOURCE.LINK)
 
-    # def linkToggled(self):
-    #     self.SOURCE.updateLink(not self.SOURCE.LINK)
+    def phantomToggled(self):
+        self.SOURCE.updatePhantomPowerToggle(not self.SOURCE.PHANTOM)
+        self._phantomToggle.setChecked(not self.SOURCE.PHANTOM)
 
     def nameChanged(self, val):
         self.SOURCE.updateName(val)
@@ -59,11 +89,11 @@ class EditWindow(QtWidgets.QWidget, QEdit):
 
     def lowcutToggled(self):
         self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
-        self._lowcutToggle.setText('Disable' if self.SOURCE.HP_ON else 'Enable')
+        self._lowcutToggle.setText('Disable' if not self.SOURCE.HP_ON else 'Enable')
     
     def delayToggled(self):
         self.SOURCE.updateDelay(not self.SOURCE.DELAY_ON)
-        self._delayToggle.setText('Disable' if self.SOURCE.DELAY_ON else 'Enable')
+        self._delayToggle.setText('Disable' if not self.SOURCE.DELAY_ON else 'Enable')
 
     def updateMeter(self, val):
         self.meter = val

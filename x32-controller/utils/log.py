@@ -1,10 +1,17 @@
 from termcolor import colored
 
+logging = False
+
+def setLogging(val):
+    global logging
+    logging = val
+
 def info(msg):
-    print(
-        colored(f"[INFO]", 'blue', 'on_blue') + ' ' +
-        colored(f"{msg}")
-    )
+    if logging:
+        print(
+            colored(f"[INFO]", 'blue', 'on_blue') + ' ' +
+            colored(f"{msg}")
+        )
 
 def warn(msg):
     print(

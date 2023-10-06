@@ -1,5 +1,6 @@
 import osc
 import utils.log
+import osc.types
 
 class Base:
     def __init__(self, OSC: osc.controller, id, type) -> None:
@@ -27,9 +28,39 @@ class Base:
         self.DELAY_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
         self.DELAY_TIME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time'))
 
-        self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
+        self.GATE_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
+        self.GATE_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
+        self.GATE_RANGE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range'))
 
+        self.DYN_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
+        self.DYN_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
+
+        self.EQ_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
+
+        self.EQ_1_TYPE, = (None, )
+        self.EQ_1_F, = (None, )
+        self.EQ_1_G, = (None, )
+        self.EQ_1_Q, = (None, )
+
+        self.EQ_2_TYPE, = (None, )
+        self.EQ_2_F, = (None, )
+        self.EQ_2_G, = (None, )
+        self.EQ_2_Q, = (None, )
+
+        self.EQ_3_TYPE, = (None, )
+        self.EQ_3_F, = (None, )
+        self.EQ_3_G, = (None, )
+        self.EQ_3_Q, = (None, )
+
+        self.EQ_4_TYPE, = (None, )
+        self.EQ_4_F, = (None, )
+        self.EQ_4_G, = (None, )
+        self.EQ_4_Q, = (None, )
+
+        self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
         self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
+        self.PAN = (None, )
+
 
     def triggerError(self, msg: str) -> None:
         utils.log.error(msg)
@@ -106,3 +137,76 @@ class Base:
             self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 0 if self.MUTE else 1}]))
         else:
             self.triggerError('Mute value is not a boolean')
+
+    def updateGate(self, val:bool) -> None:
+        if type(val) == bool:
+            self.GATE_ON = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.GATE_ON else 1}]))
+        else:
+            self.triggerError('Gate value is not a boolean')
+
+    def updateGateThresh(self, val: float) -> None:
+        if type(val) == float and val > -80 or val < 0:
+            self.GATE_THRESH = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
+        else:
+            self.triggerError('Gate threshold value is not between -80 and 0 db')
+
+    def updateGateRange(self, val: float) -> None:
+        if type(val) == float and val > 3 or val < 60:
+            self.GATE_RANGE = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range', [{'f': round(self.GATE_RANGE, 1)}]))
+        else:
+            self.triggerError('Gate range value is not between 3 and 60 db')
+
+    def updateDynamics(self, val: bool) -> None:
+        if type(val) == bool:
+            self.DYN_ON = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 0 if self.DYN_ON else 1}]))
+        else:
+            self.triggerError('Dynamics value is not a boolean')
+
+    def updateDynamicsThresh(self, val: float) -> None:
+        if type(val) == float and val > -60 or val < 0:
+            self.DYN_THRESH = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr', [{'f': round(self.DYN_THRESH, 1)}]))
+        else:
+            self.triggerError('Dynamics threshold value is not between -60 and 0 db')
+        
+    def updateEq(self, val: bool) -> None:
+        if type(val) == bool:
+            self.EQ_ON = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.EQ_ON else 1}]))
+        else:
+            self.triggerError('EQ value is not a boolean')
+
+    def updateEq1Type(self, val: osc.types.EQTypes) -> None:
+        pass
+
+    def updateEq1Freq(self, val: float) -> None:
+        if type(val) == float and val > 20 or val < 20000:
+            self.EQ_1_F = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f', [{'f': round(self.EQ_1_F, 1)}]))
+        else:
+            self.triggerError('EQ frequency value is not between 20 and 20000 hz')
+
+    def updateEq1Gain(self, val: float) -> None:
+        if type(val) == float and val > -15 or val < 15:
+            self.EQ_1_G = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g', [{'f': round(self.EQ_1_G, 1)}]))
+        else:
+            self.triggerError('EQ gain value is not between -15 and 15 db')
+
+    def updateEq1Q(self, val: float) -> None:
+        if type(val) == float and val > 0.3 or val < 10:
+            self.EQ_1_Q = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q', [{'f': round(self.EQ_1_Q, 1)}]))
+        else:
+            self.triggerError('EQ Q value is not between 0.3 and 10')
+
+    def updatePan(self, val: float) -> None:
+        if type(val) == float and val > -100 or val < 100:
+            self.PAN = val
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan', [{'f': round(self.PAN, 1)}]))
+        else:
+            self.triggerError('Pan value is not between -100 and 100')
