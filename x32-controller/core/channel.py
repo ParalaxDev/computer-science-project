@@ -19,6 +19,25 @@ class Channel(core.base):
 
         self.PHANTOM, = self.OSC.send(osc.construct(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom'))
 
+    def saveValues(self, db, saveId):
+        baseId = super().saveValues(db)
+
+        db.execute(f'''
+            INSERT INTO channels (
+                save_id,
+                base_id,
+                headamp_source, headamp_gain,
+                hp_on, hp_freq,
+                phantom
+            ) VALUES (
+                "{saveId}",
+                "{baseId}",
+                "{self.HEADAMP_SOURCE}", "{self.HEADAMP_GAIN}",
+                "{self.HP_ON}", "{self.HP_FREQ}",
+                "{self.PHANTOM}"
+            )
+        ''')
+
     def updateHeadampGain(self, val: float) -> None:
         if type(val) == float and val >= -12 and val <= 60:
             self.HEADAMP_GAIN = val

@@ -1,4 +1,4 @@
-import osc
+import osc, database
 import utils.log
 import osc.types
 
@@ -20,7 +20,8 @@ class Base:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
     def loadValues(self) -> None:
-        self.NAME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
+        # self.NAME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
+        self.NAME, = (f'Channel {self.ID}',)
         self.COLOUR, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
         self.SOURCE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
         self.LINK, = self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
@@ -34,6 +35,7 @@ class Base:
 
         self.DYN_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
         self.DYN_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
+        self.DYN_RATIO, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr')) # TODO: Implement this
 
         self.EQ_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
 
@@ -59,8 +61,46 @@ class Base:
 
         self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
         self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
-        self.PAN = (None, )
+        self.PAN, = (None, )
 
+    def saveValues(self, db: database.controller):
+        db.execute(f'''
+            INSERT INTO bases (
+                name,
+                colour,
+                source,
+                link,
+                delay_on, delay_time,
+                gate_on, gate_thresh, gate_range,
+                dyn_on, dyn_thresh, dyn_ratio,
+                eq_on,
+                eq_1_type, eq_1_f, eq_1_g, eq_1_q,
+                eq_2_type, eq_2_f, eq_2_g, eq_2_q,
+                eq_3_type, eq_3_f, eq_3_g, eq_3_q,
+                eq_4_type, eq_4_f, eq_4_g, eq_4_q,
+                gain,
+                mute,
+                pan
+            ) VALUES (
+                "{self.NAME}",
+                "{self.COLOUR}",
+                "{self.SOURCE}",
+                "{self.LINK}",
+                "{self.DELAY_ON}", "{self.DELAY_TIME}",
+                "{self.GATE_ON}", "{self.GATE_THRESH}", "{self.GATE_RANGE}",
+                "{self.DYN_ON}", "{self.DYN_THRESH}", "{self.DYN_RATIO}",
+                "{self.EQ_ON}",
+                "{self.EQ_1_TYPE}", "{self.EQ_1_F}", "{self.EQ_1_G}", "{self.EQ_1_Q}",
+                "{self.EQ_2_TYPE}", "{self.EQ_2_F}", "{self.EQ_2_G}", "{self.EQ_2_Q}",
+                "{self.EQ_3_TYPE}", "{self.EQ_3_F}", "{self.EQ_3_G}", "{self.EQ_3_Q}",
+                "{self.EQ_4_TYPE}", "{self.EQ_4_F}", "{self.EQ_4_G}", "{self.EQ_4_Q}",
+                "{self.GAIN}",
+                "{self.MUTE}",
+                "{self.PAN}"
+            )
+        ''')
+
+        return db.cursor.lastrowid
 
     def triggerError(self, msg: str) -> None:
         utils.log.error(msg)
