@@ -4,3 +4,4 @@
 .python-version
 x32-controller/assets/db/main.db
 x32-controller/assets/db/main.sqbpro
+.venv

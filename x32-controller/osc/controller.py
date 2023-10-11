@@ -8,7 +8,7 @@ class Controller:
         self.PORT = port
         self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.SOCK.bind((self.IP, host))
-        self.SOCK.setblocking(0)
+        self.SOCK.setblocking(False)
         self.HOST = host
         self.TIMEOUT = timeout
         self.QUEUE = queue.Queue()
@@ -17,19 +17,19 @@ class Controller:
         # TODO: ip validation
         self.IP = newIP
 
-    def send(self, OSCMessage: osc.construct) -> None:
+    def send(self, OSCMessage: osc.construct) -> tuple or None:
 
         if OSCMessage.MESSAGE[0] != '/':
             raise Exception('Message must start with /')
 
         utils.log.info(f"SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}")
-        
+
         self.SOCK.sendto(bytes(utils.pad(OSCMessage.MESSAGE) + utils.pad(',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
 
         if OSCMessage.VALUE_ARRAY == b'':
             return self.receive(OSCMessage, self.decode)
         else:
-            return
+            return ()
 
     def receive(self, msg: osc.construct, callback):
         ready = select.select([self.SOCK], [], [], 5)
@@ -74,6 +74,9 @@ class Controller:
                     val, index = types.get_string(dgram, index)
                 case 'b':
                     val, index = types.get_blob(dgram, index)
+                case _:
+                    utils.log.error('Error in type message, recieved unknown type')
+                    val, index = b'x00', index
 
             params += (val,)
 

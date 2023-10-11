@@ -9,7 +9,7 @@ class Base:
         if id <= 0 or id > 32:
             utils.log.error(f'{id} is not a valid number for fader')
             raise Exception()
-        
+
         self.ID = id
         self.TYPE = type
         self.UUID = self.TYPE + str(self.ID)
@@ -172,7 +172,7 @@ class Base:
             self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr', [{'f': round(self.DYN_THRESH, 1)}]))
         else:
             self.triggerError('Dynamics threshold value is not between -60 and 0 db')
-        
+
     def updateEq(self, val: bool) -> None:
         if type(val) == bool:
             self.EQ_ON = val
