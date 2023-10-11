@@ -1,10 +1,10 @@
 from PyQt6 import QtCore, QtWidgets
 import osc
 import core
-import ui, ui.widgets
+import ui, ui.widgets, database
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, osc: osc.controller):
+    def __init__(self, osc: osc.controller, db: database.controller):
         super().__init__(parent=None)
 
         self.OSC = osc
@@ -35,7 +35,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._scrollArea.setWidget(faderWidget)
         self._scrollArea.setWidgetResizable(True)
         self.setLayout(self._rootLayout)
-    
+
     def resizeEvent(self, event):
         self._scrollArea.setFixedWidth(self.width())
         self._scrollArea.setFixedHeight(self.height())
@@ -55,5 +55,3 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, *args, **kwargs):
         # self.OSC.send(ConstructOSCMessage('/shutdown'))
         pass
-
-        

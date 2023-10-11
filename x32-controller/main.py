@@ -1,13 +1,14 @@
-import ui, osc
+import ui, osc, database
 from PyQt6 import QtWidgets
 import sys
 import utils.log
 
 if __name__ == "__main__":
-    utils.log.setLogging(False)
-    osc = osc.controller('192.168.0.54')
     app = QtWidgets.QApplication(sys.argv)
-    window = ui.MainWindow(osc)
-    window.setGeometry(500, 300, 800, 550)
-    window.show()
+    db = database.controller()
+    osc = osc.controller('10.4.36.242')
+    mainWindow = ui.MainWindow(osc, db)
+    mainWindow.setGeometry(500, 300, 800, 550)
+    loginWindow = ui.LoginWindow(mainWindow, db)
+    loginWindow.show()
     app.exec()
