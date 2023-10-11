@@ -34,6 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         for i in range(32):
             ch = core.channel(self.OSC, i + 1)
+            ch.updateName(f'Channel {i+1}')
             self.channels.append(ch)
             FADER = ui.widgets.Fader(self.OSC, ch)
             faderLayout.addWidget(FADER)
@@ -52,6 +53,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setLayout(self._rootLayout)
 
         self._createMenuBar()
+
+    def redraw(self):
+        faders: list[ui.widgets.Fader] = self._faders
+        for fader in faders:
+            fader.redraw()
 
     def resizeEvent(self, event):
         self._scrollArea.setFixedWidth(self.width())

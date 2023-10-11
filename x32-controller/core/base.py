@@ -20,8 +20,7 @@ class Base:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
     def loadValues(self) -> None:
-        # self.NAME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
-        self.NAME, = (f'Channel {self.ID}',)
+        self.NAME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
         self.COLOUR, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
         self.SOURCE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
         self.LINK, = self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
@@ -63,7 +62,7 @@ class Base:
         self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
         self.PAN, = (None, )
 
-    def saveValues(self, db: database.controller):
+    def saveValuesToDb(self, db: database.controller):
         db.execute(f'''
             INSERT INTO bases (
                 name,
@@ -102,6 +101,31 @@ class Base:
 
         return db.cursor.lastrowid
 
+
+    def loadValuesFromDb(self, db: database.controller, baseId: int):
+        vals = db.execute(f'SELECT * FROM bases WHERE id = {baseId}')
+
+        if not vals:
+            self.triggerError('Error loading data from db')
+        else:
+            id, name, colour, source, link, delayOn, delayTime, gateOn, gateThresh, gateRange, dynOn, dynThresh, dynRatio, eqOn, eq1Type, eq1F, eq1G, eq1Q, eq2Type, eq2F, eq2G, eq2Q, eq3Type, eq3F, eq3G, eq3Q, eq4Type, eq4F, eq4G, eq4Q, gain, mute, pan = vals.fetchone()
+
+            self.updateName(name)
+            self.updateColour(colour)
+            self.updateSource(source)
+            self.updateLink(link)
+            self.updateDelay(delayOn)
+            self.updateDelayTime(delayTime)
+            self.updateGate(gateOn)
+            self.updateGateThresh(gateThresh)
+            self.updateGateRange(gateRange)
+            self.updateDynamics(dynOn)
+            self.updateDynamicsThresh(dynThresh)
+            self.updateDynamicsRatio(dynRatio)
+            self.updateEq(eqOn)
+            self.updateGain(gain)
+            self.updateMute(mute)
+
     def triggerError(self, msg: str) -> None:
         utils.log.error(msg)
 
@@ -112,50 +136,50 @@ class Base:
             self.NAME = val
             self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name', [{'s': self.NAME}]))
 
-    def updateColour(self, col: str):
+    def updateColour(self, col: str or int):
         colcode = None
-        col = col.lower()
-        if col == 'red':
-            colcode = osc.colours.RED
-        elif col == 'green':
-            colcode = osc.colours.GREEN
-        elif col == 'yellow':
-            colcode = osc.colours.YELLOW
-        elif col == 'blue':
-            colcode = osc.colours.BLUE
-        elif col == 'magenta':
-            colcode = osc.colours.MAGENTA
-        elif col == 'cyan':
-            colcode = osc.colours.CYAN
-        elif col == 'white':
-            colcode = osc.colours.WHITE
 
-        if colcode == None:
-            self.triggerError('Not a valid colour')
+        if isinstance(col, str):
+            col = col.lower()
+            if col == 'red':
+                colcode = osc.colours.RED
+            elif col == 'green':
+                colcode = osc.colours.GREEN
+            elif col == 'yellow':
+                colcode = osc.colours.YELLOW
+            elif col == 'blue':
+                colcode = osc.colours.BLUE
+            elif col == 'magenta':
+                colcode = osc.colours.MAGENTA
+            elif col == 'cyan':
+                colcode = osc.colours.CYAN
+            elif col == 'white':
+                colcode = osc.colours.WHITE
+            if colcode == None:
+                self.triggerError('Not a valid colour')
+                return
         else:
-            self.COLOUR = colcode
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color', [{'i': self.COLOUR}]))
+            colcode = col
+
+        self.COLOUR = colcode
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color', [{'i': self.COLOUR}]))
 
     def updateSource(self, val: int) -> None:
-        if type(val) == int and val > 0 and val < 64:
+        if type(val) == int and val >= 0 and val < 64:
             self.SOURCE = val
             self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source', [{'i': self.SOURCE}]))
         else:
             self.triggerError('Not a valid source')
 
     def updateLink(self, val: bool) -> None:
-        if type(val) == bool:
-            self.LINK = val
-            self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 0 if self.LINK else 1}]))
-        else:
-            self.triggerError('Link toggle is not a boolean')
+        val = bool(val)
+        self.LINK = val
+        self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 0 if self.LINK else 1}]))
 
     def updateDelay(self, val: bool) -> None:
-        if type(val) == bool:
-            self.DELAY_ON = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 0 if self.DELAY_ON else 1}]))
-        else:
-            self.triggerError('Delay toggle is not a boolean')
+        val = bool(val)
+        self.DELAY_ON = val
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 0 if self.DELAY_ON else 1}]))
 
     def updateDelayTime(self, val: float) -> None:
         if type(val) == float and val > 0.3 or val < 500:
@@ -172,18 +196,14 @@ class Base:
             self.triggerError('Gain is not a valid float between 0 and 1')
 
     def updateMute(self, val: bool) -> None:
-        if type(val) == bool:
-            self.MUTE = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 0 if self.MUTE else 1}]))
-        else:
-            self.triggerError('Mute value is not a boolean')
+        val = bool(val)
+        self.MUTE = val
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 0 if self.MUTE else 1}]))
 
     def updateGate(self, val:bool) -> None:
-        if type(val) == bool:
-            self.GATE_ON = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.GATE_ON else 1}]))
-        else:
-            self.triggerError('Gate value is not a boolean')
+        val = bool(val)
+        self.GATE_ON = val
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.GATE_ON else 1}]))
 
     def updateGateThresh(self, val: float) -> None:
         if type(val) == float and val > -80 or val < 0:
@@ -200,11 +220,9 @@ class Base:
             self.triggerError('Gate range value is not between 3 and 60 db')
 
     def updateDynamics(self, val: bool) -> None:
-        if type(val) == bool:
-            self.DYN_ON = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 0 if self.DYN_ON else 1}]))
-        else:
-            self.triggerError('Dynamics value is not a boolean')
+        val = bool(val)
+        self.DYN_ON = val
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 0 if self.DYN_ON else 1}]))
 
     def updateDynamicsThresh(self, val: float) -> None:
         if type(val) == float and val > -60 or val < 0:
@@ -213,12 +231,13 @@ class Base:
         else:
             self.triggerError('Dynamics threshold value is not between -60 and 0 db')
 
+    def updateDynamicsRatio(self, val):
+        pass
+
     def updateEq(self, val: bool) -> None:
-        if type(val) == bool:
-            self.EQ_ON = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.EQ_ON else 1}]))
-        else:
-            self.triggerError('EQ value is not a boolean')
+        val = bool(val)
+        self.EQ_ON = val
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.EQ_ON else 1}]))
 
     def updateEq1Type(self, val: osc.types.EQTypes) -> None:
         pass

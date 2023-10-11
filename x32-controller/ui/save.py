@@ -37,5 +37,5 @@ class SaveWindow(QtWidgets.QDialog, QLogin):
             else:
                 channels:list[core.channel] = self.parent().channels
 
-                for ch in channels:
-                    ch.saveValues(self.db, saveId)
+                for num, ch in enumerate(channels):
+                    ch.saveValuesToDb(self.db, saveId, num + 1)

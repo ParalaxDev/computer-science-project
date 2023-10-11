@@ -3,9 +3,9 @@ import osc, core, utils, ui.widgets
 
 QEdit = uic.loadUiType("x32-controller/assets/ui/edit-window.ui")[0]
 
-class EditWindow(QtWidgets.QWidget, QEdit):
+class EditWindow(QtWidgets.QDialog, QEdit):
     def __init__(self, OSC: osc.controller, SOURCE: core.channel or core.bus or core.matrix, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.OSC = OSC
         self.setWindowTitle(f'Edit {SOURCE.NAME}')
@@ -16,7 +16,7 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._meter = ui.widgets.Meter(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
         self._meter.setGeometry(20, 50, 31, 201)
         self._meter.setParent(self.config)
-        
+
         self._gainDial.valueChanged.connect(self.trimChanged)
         self._lowcutDial.valueChanged.connect(self.lowcutChanged)
         self._delayDial.valueChanged.connect(self.delayChanged)
@@ -50,7 +50,7 @@ class EditWindow(QtWidgets.QWidget, QEdit):
         self._gateToggle.setChecked(self.SOURCE.GATE_ON)
         self._gateToggle.setText('Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
         self._gateGraph._trigger_refresh()
-        
+
     def gateThreshChanged(self, val):
         self.SOURCE.updateGateThresh(float(val))
         self._gateThreshLabel.setText(f'{val}hz')
@@ -71,6 +71,7 @@ class EditWindow(QtWidgets.QWidget, QEdit):
 
     def nameChanged(self, val):
         self.SOURCE.updateName(val)
+        self.parent().redraw()
 
     def colourChanged(self, val):
         self.SOURCE.updateColour(str(val).lower())
@@ -90,7 +91,7 @@ class EditWindow(QtWidgets.QWidget, QEdit):
     def lowcutToggled(self):
         self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
         self._lowcutToggle.setText('Disable' if not self.SOURCE.HP_ON else 'Enable')
-    
+
     def delayToggled(self):
         self.SOURCE.updateDelay(not self.SOURCE.DELAY_ON)
         self._delayToggle.setText('Disable' if not self.SOURCE.DELAY_ON else 'Enable')

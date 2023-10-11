@@ -16,18 +16,35 @@ class OpenWindow(QtWidgets.QDialog, QLogin):
 
         self._openButton.clicked.connect(self.openSave)
 
-        self.saves = self.db.execute(f'SELECT * FROM saves WHERE user_id = "{self.user}"').fetchall()
+        self.saves = self.db.execute(f'SELECT * FROM saves WHERE user_id = "{self.user}"')
 
-        self._table.setRowCount(len(self.saves))
-        self._table.clicked.connect(self.selectItem)
+        if self.saves:
+            self.saves = self.saves.fetchall()
+            self._table.setRowCount(len(self.saves))
+            self._table.clicked.connect(self.selectItem)
 
-        for row, save in enumerate(self.saves):
-            self._table.setItem(row, 0, QtWidgets.QTableWidgetItem(save[1]))
-            self._table.setItem(row, 1, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[2])).strftime('%Y-%m-%d %H:%M:%S')))
-            self._table.setItem(row, 2, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[3])).strftime('%Y-%m-%d %H:%M:%S')))
+            for row, save in enumerate(self.saves):
+                self._table.setItem(row, 0, QtWidgets.QTableWidgetItem(save[1]))
+                self._table.setItem(row, 1, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[2])).strftime('%H:%M:%S %d-%m-%y')))
+                self._table.setItem(row, 2, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[3])).strftime('%H:%M:%S %d-%m-%y')))
+        else:
+            utils.log.error('error loading saves from db')
 
     def selectItem(self, item):
-        self.selectedSaveId = self.saves[item.row()][0]
+        if isinstance(self.saves, list):
+            self.selectedSaveId = self.saves[item.row()][0]
 
     def openSave(self):
-        print(f'opening {self.selectedSaveId}')
+
+        channels:list[core.channel] = self.parent().channels
+
+        if not isinstance(self.selectedSaveId, int):
+            error = ui.ErrorWindow('You didn\'t select a save to open')
+            error.show()
+            return
+
+        for channel in channels:
+            channel.loadValuesFromDb(self.db, self.selectedSaveId, channel.ID)
+
+        self.parent().redraw()
+        # self.db.execute(f'SELECT * FROM ')

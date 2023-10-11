@@ -8,7 +8,7 @@ class Fader(QtWidgets.QWidget):
 
         self.OSC = OSC
         self.SOURCE = source
-        
+
         self.muted = False
         self.soloed = False
         self.selected = False
@@ -67,6 +67,16 @@ class Fader(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
+    def redraw(self):
+        self._nameLabel.setText(self.SOURCE.NAME)
+
+        self._muteButton.setChecked(self.SOURCE.MUTE)
+        self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
+
+        self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
+        self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
+
+
     def meterUpdate(self, val):
         self.meter = val
         self._bar._trigger_refresh()
@@ -84,14 +94,12 @@ class Fader(QtWidgets.QWidget):
     def selectToggle(self):
         self.selected = not self.selected
         if self.selected:
-            self.edit = ui.EditWindow(self.OSC, self.SOURCE)
+            self.edit = ui.EditWindow(self.OSC, self.SOURCE, self)
             self.edit.show()
             # self.edit
             # self.edit.closeEvent
         else:
             self.edit = None
-
-        # self._selectButton.setText('Selected' if self.selected else 'Select')
 
     def helperSetSliderIntValue(self, slider, x):
             slider.tracking = True

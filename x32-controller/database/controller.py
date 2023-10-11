@@ -66,6 +66,7 @@ class Controller:
                 "id" INTEGER UNIQUE,
                 "save_id" INTEGER,
                 "base_id" INTEGER,
+                "channel_num" INTEGER,
                 "headamp_source" INTEGER,
                 "headamp_gain" REAL,
                 "hp_on" INTEGER,

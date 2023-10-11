@@ -31,14 +31,17 @@ class LoginWindow(QtWidgets.QDialog, QLogin):
         self.hashedPassword = sha256.hexdigest()
 
     def login(self):
-        # TODO: error when no users in db, cant unpack none type
-        user, = self.db.execute(f'SELECT id from users where name = "{self.username}" and hashed_password = "{self.hashedPassword}"').fetchone()
+        try:
+            user, = self.db.execute(f'SELECT id from users where name = "{self.username}" and hashed_password = "{self.hashedPassword}"').fetchone()
+        except:
+            user = None
         if not user:
             error = ui.ErrorWindow(f'Your username or password is incorrect')
             error.show()
         else:
             self.mainWindow.show()
             self.mainWindow.userData = user
+            self.mainWindow.setGeometry(500, 300, 800, 550)
             self.hide()
 
             utils.log.info(f'user signed in as {user}')
