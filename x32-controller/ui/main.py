@@ -83,12 +83,21 @@ class MainWindow(QtWidgets.QMainWindow):
         save.triggered.connect(self.saveState)
         fileMenu.addAction(save)
 
+        saveAs = QtGui.QAction('Save As', self)
+        saveAs.setShortcut('Ctrl+Alt+S')
+        saveAs.triggered.connect(self.saveAsState)
+        fileMenu.addAction(saveAs)
+
         open = QtGui.QAction('Open', self)
         open.setShortcut('Ctrl+O')
         open.triggered.connect(self.openState)
         fileMenu.addAction(open)
 
-    def saveState(self,):
+    def saveAsState(self):
+        save = ui.SaveAsWindow(self.DB, self.userData, self)
+        save.show()
+
+    def saveState(self):
         save = ui.SaveWindow(self.DB, self.userData, self)
         save.show()
 

@@ -8,7 +8,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     db = database.controller()
     # db.reset()
-    osc = osc.controller('192.168.0.54')
+    osc = osc.controller('10.4.36.242')
     mainWindow = ui.MainWindow(osc, db)
     loginWindow = ui.LoginWindow(mainWindow, db)
     loginWindow.show()

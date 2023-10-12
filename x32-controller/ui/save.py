@@ -1,8 +1,8 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
-import hashlib, database, ui, re, utils.log, osc, time, core
+import hashlib, database, ui, re, utils.log, osc, time, core, datetime
 # import osc, core, utils, ui.widgets
 
-QLogin = uic.loadUiType("x32-controller/assets/ui/save-window.ui")[0]
+QLogin = uic.loadUiType("x32-controller/assets/ui/overwrite-window.ui")[0]
 
 class SaveWindow(QtWidgets.QDialog, QLogin):
     def __init__(self, db: database.controller, user: int, parent=None):
@@ -12,30 +12,42 @@ class SaveWindow(QtWidgets.QDialog, QLogin):
         self.user = user
         self.db = db
 
-        self.saveName = ''
+        self.selectedSaveId = -1
 
-        self._nameEdit.textChanged.connect(self.nameUpdate)
-        self._saveButton.clicked.connect(self.savePressed)
+        self._saveButton.clicked.connect(self.overwriteSave)
 
-    def nameUpdate(self, val):
-        self.saveName = val
+        self.saves = self.db.execute(f'SELECT * FROM saves WHERE user_id = "{self.user}"')
 
-    def savePressed(self):
-        print(len(self.saveName))
-        if len(self.saveName) <= 0:
-            error = ui.ErrorWindow('Save name should be at least 1 character long')
+        if self.saves:
+            self.saves = self.saves.fetchall()
+            self._table.setRowCount(len(self.saves))
+            self._table.clicked.connect(self.selectItem)
+
+            for row, save in enumerate(self.saves):
+                self._table.setItem(row, 0, QtWidgets.QTableWidgetItem(save[1]))
+                self._table.setItem(row, 1, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[2])).strftime('%H:%M:%S %d-%m-%y')))
+                self._table.setItem(row, 2, QtWidgets.QTableWidgetItem(datetime.datetime.utcfromtimestamp(float(save[3])).strftime('%H:%M:%S %d-%m-%y')))
+        else:
+            utils.log.error('error loading saves from db')
+
+    def selectItem(self, item):
+        if isinstance(self.saves, list):
+            self.selectedSaveId = self.saves[item.row()][0]
+
+    def overwriteSave(self):
+
+        print('updating save :))')
+
+        channels:list[core.channel] = self.parent().channels
+
+        if not isinstance(self.selectedSaveId, int):
+            error = ui.ErrorWindow('You didn\'t select a save to update')
             error.show()
             return
-        else:
-            currentTime = int(time.time())
-            self.db.execute(f'INSERT INTO saves (name, created_at, updated_at, user_id) VALUES ("{self.saveName}", "{currentTime}", "{currentTime}", "{self.user}")')
-            saveId = self.db.cursor.lastrowid if isinstance(self.db.cursor.lastrowid, int) else -1
 
-            if saveId == -1:
-                error = ui.ErrorWindow('Could not create save column in database')
-                error.show()
-            else:
-                channels:list[core.channel] = self.parent().channels
+        for num, channel in enumerate(channels):
+            channel.updateValuesInDb(self.db, self.selectedSaveId, num + 1)
 
-                for num, ch in enumerate(channels):
-                    ch.saveValuesToDb(self.db, saveId, num + 1)
+        self.db.execute(f'UPDATE saves SET updated_at = "{int(time.time())}" WHERE id = {self.selectedSaveId}')
+
+        self.parent().redraw()

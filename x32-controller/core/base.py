@@ -101,6 +101,31 @@ class Base:
 
         return db.cursor.lastrowid
 
+    def updateValuesInDb(self, db: database.controller, baseId: int):
+        db.execute(f'''
+            UPDATE bases SET
+            name = "{self.NAME}",
+            colour = "{self.COLOUR}",
+            source = "{self.SOURCE}",
+            link = "{self.LINK}",
+            delay_on = "{self.DELAY_ON}",
+            delay_time = "{self.DELAY_TIME}",
+            gate_on = "{self.GATE_ON}",
+            gate_thresh = "{self.GATE_THRESH}",
+            gate_range = "{self.GATE_RANGE}",
+            dyn_on = "{self.DYN_ON}",
+            dyn_thresh = "{self.DYN_THRESH}",
+            dyn_ratio = "{self.DYN_RATIO}",
+            eq_on = "{self.EQ_ON}",
+            eq_1_type = "{self.EQ_1_TYPE}",
+            eq_1_f = "{self.EQ_1_F}",
+            eq_1_g = "{self.EQ_1_G}",
+            eq_1_q = "{self.EQ_1_Q}",
+            gain = "{self.GAIN}",
+            mute = "{self.MUTE}",
+            pan = "{self.PAN}"
+            WHERE id = "{baseId}"
+        ''')
 
     def loadValuesFromDb(self, db: database.controller, baseId: int):
         vals = db.execute(f'SELECT * FROM bases WHERE id = {baseId}')

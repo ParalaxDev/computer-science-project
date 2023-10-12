@@ -41,10 +41,15 @@ class Channel(core.base):
             )
         ''')
 
+    def updateValuesInDb(self, db: database.controller, saveId: int, channelId: int):
+        db.execute(f'UPDATE channels SET headamp_source = "{self.HEADAMP_SOURCE}", headamp_gain = "{self.HEADAMP_GAIN}", hp_on = "{self.HP_ON}", hp_freq = "{self.HP_FREQ}", phantom = "{self.PHANTOM}" WHERE save_id = {saveId} AND channel_num = {channelId}')
+        baseId = db.execute(f'SELECT base_id from channels WHERE save_id = {saveId} AND channel_num = {channelId}')
+        if baseId:
+            baseId, = baseId.fetchone()
+            super().updateValuesInDb(db, baseId)
+
     def loadValuesFromDb(self, db: database.controller, saveId: int, channelId: int):
         vals = db.execute(f'SELECT base_id, headamp_gain, hp_on, hp_freq, phantom from channels WHERE save_id = {saveId} AND channel_num = {channelId}')
-
-
 
         if isinstance(vals, sqlite3.Cursor):
             baseId, headampGain, hpOn, hpFreq, phantom = vals.fetchone()
