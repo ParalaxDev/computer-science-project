@@ -39,9 +39,8 @@ class LoginWindow(QtWidgets.QDialog, QLogin):
             error = ui.ErrorWindow(f'Your username or password is incorrect')
             error.show()
         else:
-            self.mainWindow.show()
-            self.mainWindow.userData = user
-            self.mainWindow.setGeometry(500, 300, 800, 550)
+            setup = ui.SettingsWindow(self.db, mainWindow=self.mainWindow, user=user, setup=True)
+            setup.show()
             self.hide()
 
             utils.log.info(f'user signed in as {user}')
@@ -65,6 +64,9 @@ class LoginWindow(QtWidgets.QDialog, QLogin):
         elif re.search('[$&+,:;=?@#|<>.^*()%!-]', self.password) is None:
             fail = True
             error = ui.ErrorWindow('Password must contain a special character [$&+,:;=?@#|<>.^*()%!-]')
+        elif len(self.username) > 8 and len(self.username) < 1:
+            fail = True
+            error = ui.ErrorWindow('Username must be at least 1 character long and no longer than 8')
 
         if fail and error:
             error.show()

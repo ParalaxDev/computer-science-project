@@ -72,7 +72,7 @@ class Channel(core.base):
     def updateHighPassToggle(self, val: bool) -> None:
         val = bool(val)
         self.HP_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon', [{'i': 0 if self.HP_ON else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon', [{'i': 1 if self.HP_ON else 0}]))
 
     def updateHighPassFreq(self, val: float) -> None:
         val = float(val)
@@ -86,4 +86,4 @@ class Channel(core.base):
     def updatePhantomPowerToggle(self, val: bool) -> None:
         val = bool(val)
         self.PHANTOM = val
-        self.OSC.send(osc.construct(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom', [{'i': 0 if self.PHANTOM else 1}]))
+        self.OSC.send(osc.construct(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom', [{'i': 1 if self.PHANTOM else 0}]))

@@ -10,10 +10,13 @@ class Construct:
             ty = list(arg.keys())[0]
             self.TYPE_STRING += ty
             val = arg.get(ty)
-            match ty:
-                case 'f':
-                    self.VALUE_ARRAY += bytearray(struct.pack(">f", val))
-                case 'i':
-                    self.VALUE_ARRAY += bytearray(struct.pack(">i", val))
-                case 's':
-                    self.VALUE_ARRAY += bytes(utils.pad(val), 'ascii')
+            try:
+                match ty:
+                    case 'f':
+                        self.VALUE_ARRAY += bytearray(struct.pack(">f", val))
+                    case 'i':
+                        self.VALUE_ARRAY += bytearray(struct.pack(">i", val))
+                    case 's':
+                        self.VALUE_ARRAY += bytes(utils.pad(val), 'ascii')
+            except Exception as e:
+                utils.log.error(f"An error occured generating OSC message: {e}")

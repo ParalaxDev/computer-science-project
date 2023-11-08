@@ -8,22 +8,19 @@ class Controller:
         if not os.path.exists('x32-controller/assets/db'):
             os.makedirs('x32-controller/assets/db')
             utils.log.warn('database directory does not exist, its been created in /assets/db')
-            self.reset()
+
 
         self.conn = sqlite3.connect('x32-controller/assets/db/main.db')
         self.cursor = self.conn.cursor()
 
-    def reset(self):
-        try:
-            self.cursor.execute('DROP TABLE users')
-            self.cursor.execute('DROP TABLE bases')
-            self.cursor.execute('DROP TABLE saves')
-            self.cursor.execute('DROP TABLE channels')
-        except:
-            pass
+        self.createBasesTable()
+        self.createChannelsTable()
+        self.createSavesTable()
+        self.createUsersTable()
 
-        self.cursor.execute('''
-            CREATE TABLE "bases" (
+    def createBasesTable(self):
+        self.execute('''
+            CREATE TABLE IF NOT EXISTS "bases" (
                 "id" INTEGER UNIQUE,
                 "name" TEXT,
                 "colour" INTEGER,
@@ -61,8 +58,9 @@ class Controller:
             )
         ''')
 
-        self.cursor.execute('''
-            CREATE TABLE "channels" (
+    def createChannelsTable(self):
+        self.execute('''
+            CREATE TABLE IF NOT EXISTS "channels" (
                 "id" INTEGER UNIQUE,
                 "save_id" INTEGER,
                 "base_id" INTEGER,
@@ -80,8 +78,9 @@ class Controller:
             )
         ''')
 
-        self.cursor.execute('''
-            CREATE TABLE "saves" (
+    def createSavesTable(self):
+        self.execute('''
+            CREATE TABLE IF NOT EXISTS "saves" (
                 "id" INTEGER UNIQUE,
                 "name" TEXT NOT NULL,
                 "created_at" TEXT,
@@ -93,11 +92,15 @@ class Controller:
             )
         ''')
 
-        self.cursor.execute('''
-            CREATE TABLE "users" (
+    def createUsersTable(self):
+        self.execute('''
+            CREATE TABLE IF NOT EXISTS "users" (
                 "id" INTEGER UNIQUE,
                 "name" TEXT NOT NULL,
                 "hashed_password" TEXT,
+                "saved_ip" TEXT,
+                "saved_port" TEXT,
+                "saved_live_mode" INTEGER,
                 PRIMARY KEY ("id" AUTOINCREMENT)
             )
         ''')

@@ -4,12 +4,12 @@ import sys
 import utils.log
 
 if __name__ == "__main__":
-    utils.log.setLogging(False)
+    utils.log.setLogging(True)
     app = QtWidgets.QApplication(sys.argv)
     db = database.controller()
     # db.reset()
-    osc = osc.controller('10.4.36.242')
-    mainWindow = ui.MainWindow(osc, db)
+    # osc = osc.controller('192.168.0.54')
+    mainWindow = ui.MainWindow(db)
     loginWindow = ui.LoginWindow(mainWindow, db)
     loginWindow.show()
     app.exec()

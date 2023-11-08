@@ -12,7 +12,7 @@ class Base:
 
         self.ID = id
         self.TYPE = type
-        self.UUID = self.TYPE + str(self.ID)
+        self.UID = self.TYPE + str(self.ID)
 
         self.loadValues()
 
@@ -38,29 +38,29 @@ class Base:
 
         self.EQ_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
 
-        self.EQ_1_TYPE, = (None, )
-        self.EQ_1_F, = (None, )
-        self.EQ_1_G, = (None, )
-        self.EQ_1_Q, = (None, )
+        self.EQ_1_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/type'))
+        self.EQ_1_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f'))
+        self.EQ_1_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g'))
+        self.EQ_1_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q'))
 
-        self.EQ_2_TYPE, = (None, )
-        self.EQ_2_F, = (None, )
-        self.EQ_2_G, = (None, )
-        self.EQ_2_Q, = (None, )
+        self.EQ_2_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/type'))
+        self.EQ_2_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/f'))
+        self.EQ_2_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/g'))
+        self.EQ_2_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/q'))
 
-        self.EQ_3_TYPE, = (None, )
-        self.EQ_3_F, = (None, )
-        self.EQ_3_G, = (None, )
-        self.EQ_3_Q, = (None, )
+        self.EQ_3_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/type'))
+        self.EQ_3_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/f'))
+        self.EQ_3_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/g'))
+        self.EQ_3_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/q'))
 
-        self.EQ_4_TYPE, = (None, )
-        self.EQ_4_F, = (None, )
-        self.EQ_4_G, = (None, )
-        self.EQ_4_Q, = (None, )
+        self.EQ_4_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/type'))
+        self.EQ_4_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/f'))
+        self.EQ_4_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/g'))
+        self.EQ_4_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/q'))
 
         self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
         self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
-        self.PAN, = (None, )
+        self.PAN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan'))
 
     def saveValuesToDb(self, db: database.controller):
         db.execute(f'''
@@ -199,12 +199,12 @@ class Base:
     def updateLink(self, val: bool) -> None:
         val = bool(val)
         self.LINK = val
-        self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 0 if self.LINK else 1}]))
+        self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 1 if self.LINK else 0}]))
 
     def updateDelay(self, val: bool) -> None:
         val = bool(val)
         self.DELAY_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 0 if self.DELAY_ON else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 1 if self.DELAY_ON else 0}]))
 
     def updateDelayTime(self, val: float) -> None:
         if type(val) == float and val > 0.3 or val < 500:
@@ -223,12 +223,12 @@ class Base:
     def updateMute(self, val: bool) -> None:
         val = bool(val)
         self.MUTE = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 0 if self.MUTE else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 1 if self.MUTE else 0}]))
 
     def updateGate(self, val:bool) -> None:
         val = bool(val)
         self.GATE_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.GATE_ON else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.GATE_ON else 0}]))
 
     def updateGateThresh(self, val: float) -> None:
         if type(val) == float and val > -80 or val < 0:
@@ -247,7 +247,7 @@ class Base:
     def updateDynamics(self, val: bool) -> None:
         val = bool(val)
         self.DYN_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 0 if self.DYN_ON else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 1 if self.DYN_ON else 0}]))
 
     def updateDynamicsThresh(self, val: float) -> None:
         if type(val) == float and val > -60 or val < 0:
@@ -262,7 +262,7 @@ class Base:
     def updateEq(self, val: bool) -> None:
         val = bool(val)
         self.EQ_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 0 if self.EQ_ON else 1}]))
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.EQ_ON else 0}]))
 
     def updateEq1Type(self, val: osc.types.EQTypes) -> None:
         pass
