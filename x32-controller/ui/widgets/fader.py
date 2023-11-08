@@ -3,12 +3,12 @@ from PyQt6.QtCore import Qt
 import osc, core, utils, ui, ui.widgets
 
 class Fader(QtWidgets.QWidget):
-    def __init__(self, OSC: osc.controller, source: core.channel, *args, **kwargs):
+    def __init__(self, OSC: osc.controller, source: core.channel or core.bus or core.matrix, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.OSC = OSC
         self.SOURCE = source
-        
+
         self.muted = False
         self.soloed = False
         self.selected = False
@@ -23,7 +23,7 @@ class Fader(QtWidgets.QWidget):
         layout.addWidget(self._nameLabel)
 
         self._selectButton = QtWidgets.QPushButton()
-        self._selectButton.setText('Select')
+        self._selectButton.setText('Edit')
         self._selectButton.clicked.connect(self.selectToggle)
         # self._selectButton.setCheckable(True)
         layout.addWidget(self._selectButton)
@@ -67,6 +67,16 @@ class Fader(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
+    def redraw(self):
+        self._nameLabel.setText(self.SOURCE.NAME)
+
+        self._muteButton.setChecked(self.SOURCE.MUTE)
+        self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
+
+        self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
+        self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
+
+
     def meterUpdate(self, val):
         self.meter = val
         self._bar._trigger_refresh()
@@ -82,16 +92,11 @@ class Fader(QtWidgets.QWidget):
         self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
 
     def selectToggle(self):
-        self.selected = not self.selected
-        if self.selected:
-            self.edit = ui.EditWindow(self.OSC, self.SOURCE)
+        if self.SOURCE.TYPE == 'ch':
+            self.edit = ui.EditChannelWindow(self.OSC, self.SOURCE, self)
             self.edit.show()
-            # self.edit
-            # self.edit.closeEvent
         else:
-            self.edit = None
-
-        # self._selectButton.setText('Selected' if self.selected else 'Select')
+            utils.log.warn('Other types have not been implemented yet')
 
     def helperSetSliderIntValue(self, slider, x):
             slider.tracking = True

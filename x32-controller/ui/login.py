@@ -31,12 +31,16 @@ class LoginWindow(QtWidgets.QDialog, QLogin):
         self.hashedPassword = sha256.hexdigest()
 
     def login(self):
-        user = self.db.execute(f'SELECT name, hashed_password from users where name = "{self.username}" and hashed_password = "{self.hashedPassword}"').fetchone()
+        try:
+            user, = self.db.execute(f'SELECT id from users where name = "{self.username}" and hashed_password = "{self.hashedPassword}"').fetchone()
+        except:
+            user = None
         if not user:
             error = ui.ErrorWindow(f'Your username or password is incorrect')
             error.show()
         else:
-            self.mainWindow.show()
+            setup = ui.SettingsWindow(self.db, mainWindow=self.mainWindow, user=user, setup=True)
+            setup.show()
             self.hide()
 
             utils.log.info(f'user signed in as {user}')
@@ -60,6 +64,9 @@ class LoginWindow(QtWidgets.QDialog, QLogin):
         elif re.search('[$&+,:;=?@#|<>.^*()%!-]', self.password) is None:
             fail = True
             error = ui.ErrorWindow('Password must contain a special character [$&+,:;=?@#|<>.^*()%!-]')
+        elif len(self.username) > 8 and len(self.username) < 1:
+            fail = True
+            error = ui.ErrorWindow('Username must be at least 1 character long and no longer than 8')
 
         if fail and error:
             error.show()
