@@ -2,12 +2,14 @@ from PyQt6 import QtCore, QtWidgets, QtGui
 import osc
 import core, utils
 import ui, ui.widgets, database
+from types import UnionType
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, db: database.controller):
         super().__init__(parent=None)
 
         self.DB = db
+        self.setObjectName('PEPEPE')
 
         self.userData = -1
 
@@ -20,8 +22,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._tabGroup.setCurrentIndex(1)
 
         self._rootLayout.addWidget(self._tabGroup)
-
-        # Generate Channels:
 
         self._channels = self.generateFaderBank()
         self._buses = self.generateFaderBank()
@@ -38,10 +38,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.matrices = []
         self.dcas = []
 
-        self.channelFaders = []
-        self.busFaders = []
-        self.MatrixFaders = []
-        self.dcaFaders = []
+        self.channelFaders: list[ui.widgets.Fader] = []
+        self.busFaders: list[ui.widgets.Fader] = []
+        self.matrixFaders: list[ui.widgets.Fader] = []
+        self.dcaFaders: list[ui.widgets.Fader] = []
+
+        self.mode = 'normal'
+        self.selectedFader: None | core.channel | core.bus | core.matrix = None
 
         self.setLayout(self._rootLayout)
 
@@ -69,7 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 ch = core.channel(self.OSC, i + 1)
                 ch.updateName(f'Channel {i+1}')
                 self.channels.append(ch)
-                FADER = ui.widgets.Fader(self.OSC, ch)
+                FADER = ui.widgets.Fader(i, self.OSC, ch)
 
                 self._channels.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.channelFaders.append(FADER)
@@ -78,7 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 bus = core.bus(self.OSC, i + 1)
                 bus.updateName(f'Bus {i+1}')
                 self.buses.append(bus)
-                FADER = ui.widgets.Fader(self.OSC, bus)
+                FADER = ui.widgets.Fader(i, self.OSC, bus)
 
                 self._buses.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.busFaders.append(FADER)
@@ -87,14 +90,26 @@ class MainWindow(QtWidgets.QMainWindow):
                 matrix = core.bus(self.OSC, i + 1)
                 matrix.updateName(f'Matrix {i+1}')
                 self.matrices.append(matrix)
-                FADER = ui.widgets.Fader(self.OSC, matrix)
+                FADER = ui.widgets.Fader(i, self.OSC, matrix)
 
                 self._matrices.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
-                self.MatrixFaders.append(FADER)
+                self.matrixFaders.append(FADER)
 
+    def redraw(self, type='all'):
+        print('REDRAW CALLED')
+        faders: list[ui.widgets.Fader] = []
+        match type:
+            case 'ch':
+                faders += self.channelFaders
+            case 'bus':
+                faders += self.busFaders
+            case 'mtx':
+                faders += self.matrixFaders
+            case 'dca':
+                faders += self.matrixFaders
+            case _:
+                faders += self.channelFaders + self.busFaders + self.matrixFaders + self.dcaFaders
 
-    def redraw(self):
-        faders: list[ui.widgets.Fader] = self._faders
         for fader in faders:
             fader.redraw()
 
@@ -131,6 +146,35 @@ class MainWindow(QtWidgets.QMainWindow):
         open.setShortcut('Ctrl+O')
         open.triggered.connect(self.openState)
         fileMenu.addAction(open)
+
+        sendOnFaders = QtGui.QAction('Send on Faders', self)
+        sendOnFaders.setShortcut('Ctrl+F')
+        sendOnFaders.triggered.connect(self.changeMode)
+        fileMenu.addAction(sendOnFaders)
+
+
+    def setSelectedFader(self, newFader: core.channel | core.bus | core.matrix | None):
+        self.selectedFader = newFader
+
+    def changeMode(self):
+        if self.mode == 'normal' and self.selectedFader != None:
+            self.mode = 'sof'
+            self._sofWarning = QtWidgets.QLabel(self)
+            self._sofWarning.setText(f"WARNING: YOU'RE EDITING THE SENDS FOR {self.selectedFader.NAME}")
+            self._sofWarning.setGeometry(0, 0, self.frameGeometry().width(), 25)
+            self._sofWarning.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            self._sofWarning.show()
+            self._sofWarning.setStyleSheet('background-color: #e64843')
+            self._tabGroup.setCurrentIndex(1)
+        elif self.mode == 'sof' and self._sofWarning:
+            self.mode = 'normal'
+            self._sofWarning.hide()
+            self._tabGroup.setCurrentIndex(0)
+        else:
+            error = ui.ErrorWindow('There was an error entering SOF mode, try selecting a channel.')
+            error.show()
+
+        self.redraw('bus')
 
     def saveAsState(self):
         save = ui.SaveAsWindow(self.DB, self.userData, self)

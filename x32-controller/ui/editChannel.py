@@ -44,6 +44,7 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self.redraw()
 
     def redraw(self):
+        print('LOCAL REDRAW')
         self._channelName.setText(self.SOURCE.NAME)
         self._gainDial.setValue(int(self.SOURCE.HEADAMP_GAIN))
         self._lowcutDial.setValue(int(self.SOURCE.HP_FREQ))
@@ -101,7 +102,7 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
 
     def nameChanged(self, val):
         self.SOURCE.updateName(val)
-        self.parent().redraw()
+        self.parent().parent().parent().parent().parent().parent().parent().redraw()
 
     def colourChanged(self, val):
         self.SOURCE.updateColour(str(val).lower())

@@ -12,7 +12,7 @@ class Base:
 
         self.ID = id
         self.TYPE = type
-        self.UID = self.TYPE + str(self.ID)
+        self.UID = self.TYPE + '-' + str(self.ID)
 
         self.loadValues()
 

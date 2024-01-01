@@ -1,6 +1,16 @@
 import sqlite3
 import core
 import osc, database
+from typing import List
+
+
+class BusSends:
+    def __init__(self, on: bool, level: float) -> None:
+        self.ON = bool(on)
+        self.LEVEL = float(level)
+
+    def __str__(self):
+        return f"ON: {self.ON}, LEVEL: {self.LEVEL}"
 
 class Channel(core.base):
     def __init__(self, OSC: osc.controller, id) -> None:
@@ -19,6 +29,20 @@ class Channel(core.base):
         self.HP_FREQ, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpf'))
 
         self.PHANTOM, = self.OSC.send(osc.construct(f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom'))
+
+        self.BUS_SENDS = self.loadAllBusSends()
+
+    def loadAllBusSends(self) -> List[BusSends]:
+        res: List[BusSends] = []
+
+        for i in range(16):
+            on, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(i + 1).zfill(2)}/on'))
+            level, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(i + 1).zfill(2)}/level'))
+            print(level)
+            res.append(BusSends(on, level))
+
+        return res
+
 
     def saveValuesToDb(self, db, saveId, channelId):
         baseId = super().saveValuesToDb(db)
@@ -60,6 +84,17 @@ class Channel(core.base):
             self.updatePhantomPowerToggle(phantom)
 
             super().loadValuesFromDb(db, baseId)
+
+    def updateBusSendMutes(self, busNum: int, newVal: bool):
+        newValB = bool(newVal)
+        self.BUS_SENDS[busNum].ON = newValB
+        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(busNum + 1).zfill(2)}/on', [{'f': newVal}]))
+
+    def updateBusSendLevels(self, busNum: int, newVal: float):
+        if newVal >= 0 and newVal <= 1:
+            # print(f'newval: {newVal}')
+            self.BUS_SENDS[busNum].LEVEL = newVal
+            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(busNum + 1).zfill(2)}/level', [{'f': newVal}]))
 
     def updateHeadampGain(self, val: float) -> None:
         val = float(val)

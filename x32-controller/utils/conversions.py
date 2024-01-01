@@ -17,7 +17,7 @@ def FloatToFader(OldValue, NewMin = -90, NewMax = 10, OldMax = 1, OldMin = 0):
     if OldRange == 0:
         NewValue = NewMin
     else:
-        NewRange = (NewMax - NewMin)  
+        NewRange = (NewMax - NewMin)
         NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
 
     return NewValue

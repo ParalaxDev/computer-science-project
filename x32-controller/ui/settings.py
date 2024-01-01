@@ -96,7 +96,7 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
 
             self.mainWindow.show()
             self.mainWindow.userData = self.user
-            self.mainWindow.setGeometry(500, 300, 800, 550)
+            self.mainWindow.setGeometry(500, 300, 800, 600)
             self.mainWindow.loadData(self.osc)
         else:
             assert(self.oldOsc)
