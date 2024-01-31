@@ -1,7 +1,11 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
-import osc, core, utils, ui.widgets
+import osc
+import core
+import utils
+import ui.widgets
 
 QEdit = uic.loadUiType("x32-controller/assets/ui/edit-channel-window.ui")[0]
+
 
 class EditChannelWindow(QtWidgets.QDialog, QEdit):
     def __init__(self, OSC: osc.controller, SOURCE: core.channel or core.bus or core.matrix, parent=None):
@@ -13,7 +17,8 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
 
         self.updateMeter(1)
 
-        self._meter = ui.widgets.Meter(["#00ff00", "#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#00ff00","#fca503","#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
+        self._meter = ui.widgets.Meter(["#00ff00", "#00ff00", "#00ff00", "#00ff00", "#00ff00", "#00ff00", "#00ff00",
+                                       "#00ff00", "#fca503", "#fca503", "#fca503", "#fca503", "#fca503", "#ff0000", "#ff0000", "#ff0000"], self)
         self._meter.setGeometry(20, 50, 31, 201)
         self._meter.setParent(self.config)
 
@@ -30,6 +35,14 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._linkToggle.clicked.connect(self.linkToggled)
         self._phantomToggle.clicked.connect(self.phantomToggled)
 
+        sources = self.generateSources()
+
+        self._inputSelect.clear()
+        self._inputSelect.addItems(sources)
+
+        self._inputSelect.currentIndexChanged.connect(self.sourceChanged)
+        self._inputSelect.setCurrentIndex(SOURCE.SOURCE)
+
         self._gateGraph = ui.widgets.GateGraph()
         self._gateGraph.setGeometry(10, 10, 210, 260)
         self._gateGraph.setParent(self.gate)
@@ -43,6 +56,9 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
 
         self.redraw()
 
+    def sourceChanged(self):
+        self.SOURCE.updateSource(self._inputSelect.currentIndex())
+
     def redraw(self):
         print('LOCAL REDRAW')
         self._channelName.setText(self.SOURCE.NAME)
@@ -52,16 +68,21 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._colourDropdown.setCurrentIndex(self.SOURCE.COLOUR - 1)
 
         self._delayToggle.setChecked(self.SOURCE.DELAY_ON)
-        self._delayToggle.setText('Enabled' if self.SOURCE.DELAY_ON else 'Enable')
+        self._delayToggle.setText(
+            'Enabled' if self.SOURCE.DELAY_ON else 'Enable')
 
         self._lowcutToggle.setChecked(self.SOURCE.HP_ON)
-        self._lowcutToggle.setText('Enabled' if self.SOURCE.HP_ON else 'Enable')
+        self._lowcutToggle.setText(
+            'Enabled' if self.SOURCE.HP_ON else 'Enable')
 
         self._linkToggle.setChecked(self.SOURCE.LINK)
         self._phantomToggle.setChecked(self.SOURCE.PHANTOM)
 
+        self._inputSelect.setCurrentIndex(self.SOURCE.SOURCE)
+
         self._gateToggle.setChecked(self.SOURCE.GATE_ON)
-        self._gateToggle.setText('Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
+        self._gateToggle.setText(
+            'Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
         self._gateThreshLabel.setText(f'{self.SOURCE.GATE_THRESH}hz')
         self._gateRangeLabel.setText(f'{self.SOURCE.GATE_RANGE}db')
         self._gateThreshSlider.setValue(int(self.SOURCE.GATE_THRESH))
@@ -69,7 +90,8 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._gateGraph._trigger_refresh()
 
         self._dynToggle.setChecked(self.SOURCE.DYN_ON)
-        self._dynToggle.setText('Disable Dynamics' if self.SOURCE.DYN_ON else 'Enable Dynamics')
+        self._dynToggle.setText(
+            'Disable Dynamics' if self.SOURCE.DYN_ON else 'Enable Dynamics')
         self._dynThreshLabel.setText(f'{self.SOURCE.DYN_THRESH}hz')
         self._dynRatioLabel.setText(f'{self.SOURCE.DYN_RATIO}db')
         self._dynThreshSlider.setValue(int(self.SOURCE.DYN_THRESH))
@@ -79,7 +101,8 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
     def gateToggled(self, val):
         self.SOURCE.updateGate(val)
         self._gateToggle.setChecked(self.SOURCE.GATE_ON)
-        self._gateToggle.setText('Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
+        self._gateToggle.setText(
+            'Disable Gate' if self.SOURCE.GATE_ON else 'Enable Gate')
         self._gateGraph._trigger_refresh()
 
     def gateThreshChanged(self, val):
@@ -122,14 +145,37 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
     def lowcutToggled(self):
         self.SOURCE.updateHighPassToggle(not self.SOURCE.HP_ON)
         self._lowcutToggle.setChecked(self.SOURCE.HP_ON)
-        self._lowcutToggle.setText('Enabled' if self.SOURCE.HP_ON else 'Enable')
+        self._lowcutToggle.setText(
+            'Enabled' if self.SOURCE.HP_ON else 'Enable')
 
     def delayToggled(self):
         self.SOURCE.updateDelay(not self.SOURCE.DELAY_ON)
         self._delayToggle.setChecked(self.SOURCE.DELAY_ON)
-        self._delayToggle.setText('Enabled' if self.SOURCE.DELAY_ON else 'Enable')
+        self._delayToggle.setText(
+            'Enabled' if self.SOURCE.DELAY_ON else 'Enable')
 
     def updateMeter(self, val):
         self.meter = val
         self._meterLabel.setText(f'{utils.FloatToDb(val)}db')
         # self._meter._trigger_refresh()
+
+    def generateSources(self):
+        ret = []
+        ret.append("Off")
+        for i in range(32):
+            ret.append(f"In {i + 1}")
+
+        for i in range(6):
+            ret.append(f"Aux {i + 1}")
+
+        ret.append(f"USB L")
+        ret.append(f"USB R")
+
+        for i in range(4):
+            ret.append(f"FX {i + 1}L")
+            ret.append(f"FX {i + 1}R")
+
+        for i in range(16):
+            ret.append(f"Bus {i + 1}")
+
+        return ret

@@ -9,7 +9,6 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__(parent=None)
 
         self.DB = db
-        self.setObjectName('PEPEPE')
 
         self.userData = -1
 
