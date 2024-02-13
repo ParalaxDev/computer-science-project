@@ -1,9 +1,14 @@
-import socket, select, queue, osc, ui
+import socket
+import select
+import queue
+import osc
+import ui
 import utils
 from osc import types
 
+
 class Controller:
-    def __init__(self, ip, live=False, port=10023, host=10024, timeout=5) -> None:
+    def __init__(self, ip, live=True, port=10023, host=10024, timeout=5) -> None:
         self.IP = ip
         self.PORT = port
         self.LIVE = live
@@ -27,10 +32,12 @@ class Controller:
         if OSCMessage.MESSAGE[0] != '/':
             raise Exception('Message must start with /')
 
-        utils.log.info(f"SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}")
+        utils.log.info(
+            f"SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}")
 
         if self.LIVE:
-            self.SOCK.sendto(bytes(utils.pad(OSCMessage.MESSAGE) + utils.pad(',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
+            self.SOCK.sendto(bytes(utils.pad(OSCMessage.MESSAGE) + utils.pad(
+                ',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
 
             if OSCMessage.VALUE_ARRAY == b'':
                 return self.receive(OSCMessage, self.decode)
@@ -59,13 +66,14 @@ class Controller:
                 raise Exception('Observed wrong packet')
         else:
             utils.log.error('Connection timed out')
-            msg = ui.ErrorWindow(f'Connection timed out after {self.TIMEOUT} seconds')
+            msg = ui.ErrorWindow(
+                f'Connection timed out after {self.TIMEOUT} seconds')
             msg.show()
             return (0, )
 
     def decode(self, data):
 
-        _, dgram =  [b',' + e for e in data.split(b',', 1) if e]
+        _, dgram = [b',' + e for e in data.split(b',', 1) if e]
 
         typetag, index = types.get_string(dgram, 0)
 
@@ -85,7 +93,8 @@ class Controller:
                 case 'b':
                     val, index = types.get_blob(dgram, index)
                 case _:
-                    utils.log.error('Error in type message, recieved unknown type')
+                    utils.log.error(
+                        'Error in type message, recieved unknown type')
                     val, index = b'x00', index
 
             params += (val,)

@@ -1,14 +1,17 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
-import osc, ui, database
+import osc
+import ui
+import database
 
 QSettings = uic.loadUiType("x32-controller/assets/ui/settings-window.ui")[0]
 
+
 class SettingsWindow(QtWidgets.QDialog, QSettings):
-    def __init__(self, db:database.controller, mainWindow: ui.MainWindow|None=None, user=None, setup=False, oldOsc: osc.controller|None=None, parent=None):
+    def __init__(self, db: database.controller, mainWindow: ui.MainWindow | None = None, user=None, setup=False, oldOsc: osc.controller | None = None, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        self.osc:None | osc.controller = None
+        self.osc: None | osc.controller = None
         self.mainWindow = mainWindow
         self.user = user
         self.setup = setup
@@ -19,7 +22,8 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
         self.port = 10024
         self.live = False
 
-        res = self.db.execute(f'SELECT saved_ip, saved_port, saved_live_mode from users where id = "{user}"')
+        res = self.db.execute(
+            f'SELECT saved_ip, saved_port, saved_live_mode from users where id = "{user}"')
         if res:
             ip, port, live = res.fetchone()
 
@@ -55,19 +59,21 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
 
     def testConnection(self):
         if self.live:
-            msg = ui.ErrorWindow(f'You cannot run a network test whilst in live mode')
+            msg = ui.ErrorWindow(
+                f'You cannot run a network test whilst in live mode')
             msg.show()
             return
 
-        testOsc = osc.controller('.'.join(str(x) for x in self.ip), port=self.port, live=True)
+        testOsc = osc.controller('.'.join(str(x)
+                                 for x in self.ip), port=self.port, live=True)
 
         testMsg = osc.construct('/info')
         res = testOsc.send(testMsg)
 
         if len(res) > 1:
-            msg = ui.ErrorWindow(f'OSC server {res[1]} is running {res[0]} and {res[2]} is running firmware {res[3]}')
+            msg = ui.ErrorWindow(
+                f'OSC server {res[1]} is running {res[0]} and {res[2]} is running firmware {res[3]}')
             msg.show()
-
 
     def modeChange(self, val):
         self.live = False if val == 0 else True
@@ -90,21 +96,23 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
 
     def saveSettings(self, val):
         if self.setup:
-            assert(self.mainWindow)
-            assert(self.user)
-            self.osc = osc.controller('.'.join(str(x) for x in self.ip), port=self.port, live=self.live)
+            assert (self.mainWindow)
+            assert (self.user)
+            self.osc = osc.controller(
+                '.'.join(str(x) for x in self.ip), port=self.port, live=self.live)
 
             self.mainWindow.show()
             self.mainWindow.userData = self.user
             self.mainWindow.setGeometry(500, 300, 800, 600)
             self.mainWindow.loadData(self.osc)
         else:
-            assert(self.oldOsc)
+            assert (self.oldOsc)
             self.oldOsc.setIP('.'.join(str(x) for x in self.ip))
             self.oldOsc.setPort(self.port)
             self.oldOsc.setLive(self.live)
 
-        assert(self.user)
+        assert (self.user)
 
-        self.db.execute(f'UPDATE users SET saved_ip = "{".".join(str(x) for x in self.ip)}", saved_port = "{self.port}", saved_live_mode = {self.live} WHERE id = {self.user}')
+        self.db.execute(
+            f'UPDATE users SET saved_ip = "{".".join(str(x) for x in self.ip)}", saved_port = "{self.port}", saved_live_mode = {self.live} WHERE id = {self.user}')
         self.hide()

@@ -1,6 +1,8 @@
-import osc, database
+import osc
+import database
 import utils.log
 import osc.types
+
 
 class Base:
     def __init__(self, OSC: osc.controller, id, type) -> None:
@@ -20,47 +22,79 @@ class Base:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
     def loadValues(self) -> None:
-        self.NAME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
-        self.COLOUR, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
-        self.SOURCE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
-        self.LINK, = self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
+        self.NAME, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
+        self.COLOUR, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
+        self.SOURCE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
+        self.LINK, = self.OSC.send(osc.construct(
+            f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
 
-        self.DELAY_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
-        self.DELAY_TIME, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time'))
+        self.DELAY_ON, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
+        self.DELAY_TIME, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time'))
 
-        self.GATE_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
-        self.GATE_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
-        self.GATE_RANGE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range'))
+        self.GATE_ON, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on'))
+        self.GATE_THRESH, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr'))
+        self.GATE_RANGE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range'))
 
-        self.DYN_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
-        self.DYN_THRESH, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
-        self.DYN_RATIO, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr')) # TODO: Implement this
+        self.DYN_ON, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on'))
+        self.DYN_THRESH, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))
+        self.DYN_RATIO, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr'))  # TODO: Implement this
 
-        self.EQ_ON, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
+        self.EQ_ON, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/on'))
 
-        self.EQ_1_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/type'))
-        self.EQ_1_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f'))
-        self.EQ_1_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g'))
-        self.EQ_1_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q'))
+        self.EQ_1_TYPE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/type'))
+        self.EQ_1_F, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f'))
+        self.EQ_1_G, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g'))
+        self.EQ_1_Q, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q'))
 
-        self.EQ_2_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/type'))
-        self.EQ_2_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/f'))
-        self.EQ_2_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/g'))
-        self.EQ_2_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/q'))
+        self.EQ_2_TYPE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/type'))
+        self.EQ_2_F, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/f'))
+        self.EQ_2_G, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/g'))
+        self.EQ_2_Q, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/2/q'))
 
-        self.EQ_3_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/type'))
-        self.EQ_3_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/f'))
-        self.EQ_3_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/g'))
-        self.EQ_3_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/q'))
+        self.EQ_3_TYPE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/type'))
+        self.EQ_3_F, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/f'))
+        self.EQ_3_G, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/g'))
+        self.EQ_3_Q, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/3/q'))
 
-        self.EQ_4_TYPE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/type'))
-        self.EQ_4_F, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/f'))
-        self.EQ_4_G, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/g'))
-        self.EQ_4_Q, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/q'))
+        self.EQ_4_TYPE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/type'))
+        self.EQ_4_F, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/f'))
+        self.EQ_4_G, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/g'))
+        self.EQ_4_Q, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/4/q'))
 
-        self.GAIN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
-        self.MUTE, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
-        self.PAN, = self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan'))
+        self.GAIN, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader'))
+        self.MUTE, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on'))
+        self.PAN, = self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan'))
 
     def saveValuesToDb(self, db: database.controller):
         db.execute(f'''
@@ -156,10 +190,12 @@ class Base:
 
     def updateName(self, val: str) -> None:
         if type(val) == str and len(val) > 12 or len(val) < 1:
-            self.triggerError('Name should be at least 1 character and no longer than 12 characters')
+            self.triggerError(
+                'Name should be at least 1 character and no longer than 12 characters')
         else:
             self.NAME = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name', [{'s': self.NAME}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name', [{'s': self.NAME}]))
 
     def updateColour(self, col: str or int):
         colcode = None
@@ -187,74 +223,88 @@ class Base:
             colcode = col
 
         self.COLOUR = colcode
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color', [{'i': self.COLOUR}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color', [{'i': self.COLOUR}]))
 
     def updateSource(self, val: int) -> None:
         if type(val) == int and val >= 0 and val < 64:
             self.SOURCE = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source', [{'i': self.SOURCE}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source', [{'i': self.SOURCE}]))
         else:
             self.triggerError('Not a valid source')
 
     def updateLink(self, val: bool) -> None:
         val = bool(val)
         self.LINK = val
-        self.OSC.send(osc.construct(f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 1 if self.LINK else 0}]))
+        self.OSC.send(osc.construct(
+            f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}', [{'i': 1 if self.LINK else 0}]))
 
     def updateDelay(self, val: bool) -> None:
         val = bool(val)
         self.DELAY_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 1 if self.DELAY_ON else 0}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on', [{'i': 1 if self.DELAY_ON else 0}]))
 
     def updateDelayTime(self, val: float) -> None:
         if type(val) == float and val > 0.3 or val < 500:
             self.DELAY_TIME = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time', [{'f': round(self.DELAY_TIME, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/time', [{'f': round(self.DELAY_TIME, 1)}]))
         else:
             self.triggerError('Delay time value is not between 0.3 and 500 ms')
 
     def updateGain(self, val: float) -> None:
         if type(val) == float and val >= 0 and val <= 1:
             self.GAIN = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader', [{'f': self.GAIN}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/fader', [{'f': self.GAIN}]))
         else:
             self.triggerError('Gain is not a valid float between 0 and 1')
 
     def updateMute(self, val: bool) -> None:
         val = bool(val)
         self.MUTE = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 1 if self.MUTE else 0}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/on', [{'i': 1 if self.MUTE else 0}]))
 
-    def updateGate(self, val:bool) -> None:
+    def updateGate(self, val: bool) -> None:
         val = bool(val)
         self.GATE_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.GATE_ON else 0}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.GATE_ON else 0}]))
 
     def updateGateThresh(self, val: float) -> None:
         if type(val) == float and val > -80 or val < 0:
             self.GATE_THRESH = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/thr', [{'f': round(self.GATE_THRESH, 1)}]))
         else:
-            self.triggerError('Gate threshold value is not between -80 and 0 db')
+            self.triggerError(
+                'Gate threshold value is not between -80 and 0 db')
 
     def updateGateRange(self, val: float) -> None:
         if type(val) == float and val > 3 or val < 60:
             self.GATE_RANGE = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range', [{'f': round(self.GATE_RANGE, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/range', [{'f': round(self.GATE_RANGE, 1)}]))
         else:
             self.triggerError('Gate range value is not between 3 and 60 db')
 
     def updateDynamics(self, val: bool) -> None:
         val = bool(val)
         self.DYN_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 1 if self.DYN_ON else 0}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/on', [{'i': 1 if self.DYN_ON else 0}]))
 
     def updateDynamicsThresh(self, val: float) -> None:
         if type(val) == float and val > -60 or val < 0:
             self.DYN_THRESH = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr', [{'f': round(self.DYN_THRESH, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/thr', [{'f': round(self.DYN_THRESH, 1)}]))
         else:
-            self.triggerError('Dynamics threshold value is not between -60 and 0 db')
+            self.triggerError(
+                'Dynamics threshold value is not between -60 and 0 db')
 
     def updateDynamicsRatio(self, val):
         pass
@@ -262,7 +312,8 @@ class Base:
     def updateEq(self, val: bool) -> None:
         val = bool(val)
         self.EQ_ON = val
-        self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.EQ_ON else 0}]))
+        self.OSC.send(osc.construct(
+            f'/{self.TYPE}/{str(self.ID).zfill(2)}/gate/on', [{'i': 1 if self.EQ_ON else 0}]))
 
     def updateEq1Type(self, val: osc.types.EQTypes) -> None:
         pass
@@ -270,27 +321,32 @@ class Base:
     def updateEq1Freq(self, val: float) -> None:
         if type(val) == float and val > 20 or val < 20000:
             self.EQ_1_F = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f', [{'f': round(self.EQ_1_F, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/f', [{'f': round(self.EQ_1_F, 1)}]))
         else:
-            self.triggerError('EQ frequency value is not between 20 and 20000 hz')
+            self.triggerError(
+                'EQ frequency value is not between 20 and 20000 hz')
 
     def updateEq1Gain(self, val: float) -> None:
         if type(val) == float and val > -15 or val < 15:
             self.EQ_1_G = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g', [{'f': round(self.EQ_1_G, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/g', [{'f': round(self.EQ_1_G, 1)}]))
         else:
             self.triggerError('EQ gain value is not between -15 and 15 db')
 
     def updateEq1Q(self, val: float) -> None:
         if type(val) == float and val > 0.3 or val < 10:
             self.EQ_1_Q = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q', [{'f': round(self.EQ_1_Q, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/eq/1/q', [{'f': round(self.EQ_1_Q, 1)}]))
         else:
             self.triggerError('EQ Q value is not between 0.3 and 10')
 
     def updatePan(self, val: float) -> None:
         if type(val) == float and val > -100 or val < 100:
             self.PAN = val
-            self.OSC.send(osc.construct(f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan', [{'f': round(self.PAN, 1)}]))
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/pan', [{'f': round(self.PAN, 1)}]))
         else:
             self.triggerError('Pan value is not between -100 and 100')
