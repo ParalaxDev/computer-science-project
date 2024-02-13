@@ -8,7 +8,7 @@ QEdit = uic.loadUiType("x32-controller/assets/ui/edit-channel-window.ui")[0]
 
 
 class EditChannelWindow(QtWidgets.QDialog, QEdit):
-    def __init__(self, OSC: osc.controller, SOURCE: core.channel or core.bus or core.matrix, parent=None):
+    def __init__(self, OSC: osc.controller, SOURCE: core.channel or core.bus or core.matrix, parent=None):  # type: ignore
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.OSC = OSC
@@ -53,14 +53,33 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._dynGraph = ui.widgets.DynamicsGraph()
         self._dynGraph.setGeometry(10, 10, 210, 260)
         self._dynGraph.setParent(self.dynamics)
+        self._dynThreshSlider.valueChanged.connect(self.dynThreshChanged)
+        self._dynRatioSlider.valueChanged.connect(self.dynRatioChanged)
+        self._dynToggle.clicked.connect(self.dynToggled)
 
         self.redraw()
+
+    def dynThreshChanged(self, val):
+        self.SOURCE.updateDynamicsThresh(float(val))
+        self._dynThreshLabel.setText(f'{val}hz')
+        self._dynGraph._trigger_refresh()
+
+    def dynRatioChanged(self, val):
+        self.SOURCE.updateDynamicsRatio(val)
+        self._dynRatioLabel.setText(f"{utils.RatioEnum(val)}")
+        self._dynGraph._trigger_refresh()
+
+    def dynToggled(self, val):
+        self.SOURCE.updateDynamics(val)
+        self._dynToggle.setChecked(self.SOURCE.DYN_ON)
+        self._dynToggle.setText(
+            'Disable Dynamics' if self.SOURCE.DYN_ON else 'Enable Dynamics')
+        self._dynGraph._trigger_refresh()
 
     def sourceChanged(self):
         self.SOURCE.updateSource(self._inputSelect.currentIndex())
 
     def redraw(self):
-        print('LOCAL REDRAW')
         self._channelName.setText(self.SOURCE.NAME)
         self._gainDial.setValue(int(self.SOURCE.HEADAMP_GAIN))
         self._lowcutDial.setValue(int(self.SOURCE.HP_FREQ))
@@ -128,6 +147,7 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self.parent().parent().parent().parent().parent().parent().parent().redraw()
 
     def colourChanged(self, val):
+        print(val)
         self.SOURCE.updateColour(str(val).lower())
 
     def trimChanged(self, val):

@@ -538,13 +538,13 @@
              </sizepolicy>
             </property>
             <property name="minimum">
-             <number>-80</number>
+             <number>-60</number>
             </property>
             <property name="maximum">
              <number>0</number>
             </property>
             <property name="value">
-             <number>-80</number>
+             <number>-60</number>
             </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>

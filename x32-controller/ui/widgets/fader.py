@@ -1,6 +1,11 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
-import osc, core, utils, ui, ui.widgets
+import osc
+import core
+import utils
+import ui
+import ui.widgets
+
 
 class Fader(QtWidgets.QWidget):
     def __init__(self, i, OSC: osc.controller, source: core.channel or core.bus or core.matrix, *args, **kwargs):
@@ -29,7 +34,8 @@ class Fader(QtWidgets.QWidget):
         # self._selectButton.setCheckable(True)
         layout.addWidget(self._editButton)
 
-        self._bar = ui.widgets.Meter(["#00ff00", "#00ff00", "#fca503", "#fca503", "#fca503", "#ff0000"])
+        self._bar = ui.widgets.Meter(
+            ["#00ff00", "#00ff00", "#fca503", "#fca503", "#fca503", "#ff0000"])
         layout.addWidget(self._bar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self._gainSlider = QtWidgets.QSlider()
@@ -37,7 +43,8 @@ class Fader(QtWidgets.QWidget):
         self._gainSlider.setMinimumHeight(300)
         self.helperSetSliderIntValue(self._gainSlider, self.SOURCE.GAIN)
         self._gainSlider.valueChanged.connect(self.faderUpdate)
-        layout.addWidget(self._gainSlider, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self._gainSlider,
+                         alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
         # Add volume label
         self._gainLabel = QtWidgets.QLabel()
@@ -62,16 +69,17 @@ class Fader(QtWidgets.QWidget):
         self._muteButton.setChecked(self.SOURCE.MUTE)
         self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
 
-        self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
+        self._gainLabel.setText(
+            f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
         self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
 
         self.setLayout(layout)
 
         # self.mainWindow:ui.MainWindow = self.parent().parent().parent().parent().parent().parent()
 
-
     def selectToggle(self):
-        mainWindow: ui.MainWindow = self.parent().parent().parent().parent().parent().parent()
+        mainWindow: ui.MainWindow = self.parent(
+        ).parent().parent().parent().parent().parent()
 
         if mainWindow.selectedFader != None and mainWindow.selectedFader.UID == self.SOURCE.UID:
             mainWindow.setSelectedFader(None)
@@ -80,16 +88,17 @@ class Fader(QtWidgets.QWidget):
 
         else:
             mainWindow.setSelectedFader(self.SOURCE)
-            assert(mainWindow.selectedFader)
-            self._selectButton.setChecked(True if mainWindow.selectedFader.UID == self.SOURCE.UID else False)
-            self._selectButton.setText('Selected' if mainWindow.selectedFader.UID == self.SOURCE.UID else 'Select')
+            assert (mainWindow.selectedFader)
+            self._selectButton.setChecked(
+                True if mainWindow.selectedFader.UID == self.SOURCE.UID else False)
+            self._selectButton.setText(
+                'Selected' if mainWindow.selectedFader.UID == self.SOURCE.UID else 'Select')
 
         mainWindow.redraw()
 
     def redraw(self, type=''):
-        print('FADER REDRAW CALLED')
-
-        mainWindow: ui.MainWindow = self.parent().parent().parent().parent().parent().parent()
+        mainWindow: ui.MainWindow = self.parent(
+        ).parent().parent().parent().parent().parent()
         selected = mainWindow.selectedFader
 
         self._nameLabel.setText(self.SOURCE.NAME)
@@ -104,35 +113,46 @@ class Fader(QtWidgets.QWidget):
                     self._muteButton.clicked.connect(self.sofMute)
 
                     self._muteButton.setChecked(selected.BUS_SENDS[busId].ON)
-                    self._muteButton.setText('Muted' if selected.BUS_SENDS[busId].ON else 'Mute')
+                    self._muteButton.setText(
+                        'Muted' if selected.BUS_SENDS[busId].ON else 'Mute')
 
-                    self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL) == -90 else utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL)}db')
-                    self._gainSlider.setValue(int(utils.FloatToFader(selected.BUS_SENDS[busId].LEVEL)))
+                    self._gainLabel.setText(
+                        f'{"-∞" if utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL) == -90 else utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL)}db')
+                    self._gainSlider.setValue(
+                        int(utils.FloatToFader(selected.BUS_SENDS[busId].LEVEL)))
                 else:
                     self._gainSlider.valueChanged.connect(self.faderUpdate)
                     self._muteButton.clicked.connect(self.muteToggle)
                     self._nameLabel.setText(self.SOURCE.NAME)
 
                     self._muteButton.setChecked(self.SOURCE.MUTE)
-                    self._muteButton.setText('Muted' if self.SOURCE.MUTE else 'Mute')
+                    self._muteButton.setText(
+                        'Muted' if self.SOURCE.MUTE else 'Mute')
 
-                    self._gainLabel.setText(f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
-                    self._gainSlider.setValue(int(utils.FloatToFader(self.SOURCE.GAIN)))
+                    self._gainLabel.setText(
+                        f'{"-∞" if utils.FloatToDb(self.SOURCE.GAIN) == -90 else utils.FloatToDb(self.SOURCE.GAIN)}db')
+                    self._gainSlider.setValue(
+                        int(utils.FloatToFader(self.SOURCE.GAIN)))
 
         if selected != None:
-            self._selectButton.setChecked(True if selected.UID == self.SOURCE.UID else False)
-            self._selectButton.setText('Selected' if selected.UID == self.SOURCE.UID else 'Select')
+            self._selectButton.setChecked(
+                True if selected.UID == self.SOURCE.UID else False)
+            self._selectButton.setText(
+                'Selected' if selected.UID == self.SOURCE.UID else 'Select')
 
     def sofMute(self):
         busId = self.SOURCE.ID - 1
-        selected: core.channel = self.parent().parent().parent().parent().parent().parent().selectedFader
+        selected: core.channel = self.parent().parent(
+        ).parent().parent().parent().parent().selectedFader
         selected.updateBusSendMutes(busId, not selected.BUS_SENDS[busId].ON)
         self._muteButton.setChecked(selected.BUS_SENDS[busId].ON)
-        self._muteButton.setText('Muted' if selected.BUS_SENDS[busId].ON else 'Mute')
+        self._muteButton.setText(
+            'Muted' if selected.BUS_SENDS[busId].ON else 'Mute')
 
     def sofUpdate(self, newVal):
         busId = self.SOURCE.ID - 1
-        selected: core.channel = self.parent().parent().parent().parent().parent().parent().selectedFader
+        selected: core.channel = self.parent().parent(
+        ).parent().parent().parent().parent().selectedFader
         selected.updateBusSendLevels(busId, utils.DbToFloat(newVal))
         # print(utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL), selected.BUS_SENDS[busId].LEVEL)
         self._gainLabel.setText(f'{"-∞" if newVal == -90 else newVal}db')
@@ -159,8 +179,8 @@ class Fader(QtWidgets.QWidget):
             utils.log.warn('Other types have not been implemented yet')
 
     def helperSetSliderIntValue(self, slider, x):
-            slider.tracking = True
-            slider.value = int(x)
-            slider.sliderPosition = int(x)
-            slider.update()
-            slider.repaint()
+        slider.tracking = True
+        slider.value = int(x)
+        slider.sliderPosition = int(x)
+        slider.update()
+        slider.repaint()

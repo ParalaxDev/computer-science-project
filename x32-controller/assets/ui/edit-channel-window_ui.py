@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'edit-window.ui'
+## Form generated from reading UI file 'edit-channel-window.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.2
 ##
@@ -15,17 +15,17 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDial, QGridLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QSizePolicy, QSlider, QTabWidget, QToolButton,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDial, QDialog,
+    QGridLayout, QHBoxLayout, QLabel, QLineEdit,
+    QPushButton, QSizePolicy, QSlider, QTabWidget,
+    QToolButton, QVBoxLayout, QWidget)
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        if not Form.objectName():
-            Form.setObjectName(u"Form")
-        Form.resize(401, 300)
-        self.tabWidget = QTabWidget(Form)
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        if not Dialog.objectName():
+            Dialog.setObjectName(u"Dialog")
+        Dialog.resize(400, 300)
+        self.tabWidget = QTabWidget(Dialog)
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabWidget.setGeometry(QRect(0, 0, 401, 301))
         self.tabWidget.setDocumentMode(True)
@@ -101,6 +101,7 @@ class Ui_Form(object):
         self._lowcutToggle = QPushButton(self.verticalLayoutWidget)
         self._lowcutToggle.setObjectName(u"_lowcutToggle")
         self._lowcutToggle.setCheckable(True)
+        self._lowcutToggle.setAutoDefault(False)
 
         self.gridLayout.addWidget(self._lowcutToggle, 1, 1, 1, 1)
 
@@ -126,6 +127,7 @@ class Ui_Form(object):
         self._delayToggle = QPushButton(self.verticalLayoutWidget)
         self._delayToggle.setObjectName(u"_delayToggle")
         self._delayToggle.setCheckable(True)
+        self._delayToggle.setAutoDefault(False)
 
         self.gridLayout.addWidget(self._delayToggle, 1, 2, 1, 1)
 
@@ -171,6 +173,7 @@ class Ui_Form(object):
         self._gateToggle.setSizePolicy(sizePolicy)
         self._gateToggle.setCheckable(True)
         self._gateToggle.setChecked(False)
+        self._gateToggle.setAutoDefault(False)
         self._gateToggle.setFlat(False)
 
         self.verticalLayout_3.addWidget(self._gateToggle)
@@ -244,52 +247,143 @@ class Ui_Form(object):
         self.tabWidget.addTab(self.gate, "")
         self.dynamics = QWidget()
         self.dynamics.setObjectName(u"dynamics")
+        self.verticalLayoutWidget_5 = QWidget(self.dynamics)
+        self.verticalLayoutWidget_5.setObjectName(u"verticalLayoutWidget_5")
+        self.verticalLayoutWidget_5.setGeometry(QRect(230, 0, 176, 271))
+        self.verticalLayout_4 = QVBoxLayout(self.verticalLayoutWidget_5)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self._dynToggle = QPushButton(self.verticalLayoutWidget_5)
+        self._dynToggle.setObjectName(u"_dynToggle")
+        sizePolicy.setHeightForWidth(self._dynToggle.sizePolicy().hasHeightForWidth())
+        self._dynToggle.setSizePolicy(sizePolicy)
+        self._dynToggle.setCheckable(True)
+        self._dynToggle.setChecked(False)
+        self._dynToggle.setAutoDefault(False)
+        self._dynToggle.setFlat(False)
+
+        self.verticalLayout_4.addWidget(self._dynToggle)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.verticalLayout_5 = QVBoxLayout()
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self._threshDynTitle = QLabel(self.verticalLayoutWidget_5)
+        self._threshDynTitle.setObjectName(u"_threshDynTitle")
+        self._threshDynTitle.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self._threshDynTitle)
+
+        self._dynThreshSlider = QSlider(self.verticalLayoutWidget_5)
+        self._dynThreshSlider.setObjectName(u"_dynThreshSlider")
+        sizePolicy1.setHeightForWidth(self._dynThreshSlider.sizePolicy().hasHeightForWidth())
+        self._dynThreshSlider.setSizePolicy(sizePolicy1)
+        self._dynThreshSlider.setMinimum(-60)
+        self._dynThreshSlider.setMaximum(0)
+        self._dynThreshSlider.setValue(-60)
+        self._dynThreshSlider.setOrientation(Qt.Vertical)
+        self._dynThreshSlider.setInvertedAppearance(False)
+        self._dynThreshSlider.setInvertedControls(False)
+
+        self.verticalLayout_5.addWidget(self._dynThreshSlider)
+
+        self._dynThreshLabel = QLabel(self.verticalLayoutWidget_5)
+        self._dynThreshLabel.setObjectName(u"_dynThreshLabel")
+        self._dynThreshLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self._dynThreshLabel)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_5)
+
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self._rangeTitle_2 = QLabel(self.verticalLayoutWidget_5)
+        self._rangeTitle_2.setObjectName(u"_rangeTitle_2")
+        self._rangeTitle_2.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_6.addWidget(self._rangeTitle_2)
+
+        self._dynRatioSlider = QSlider(self.verticalLayoutWidget_5)
+        self._dynRatioSlider.setObjectName(u"_dynRatioSlider")
+        sizePolicy1.setHeightForWidth(self._dynRatioSlider.sizePolicy().hasHeightForWidth())
+        self._dynRatioSlider.setSizePolicy(sizePolicy1)
+        self._dynRatioSlider.setMinimum(0)
+        self._dynRatioSlider.setMaximum(11)
+        self._dynRatioSlider.setValue(6)
+        self._dynRatioSlider.setOrientation(Qt.Vertical)
+        self._dynRatioSlider.setTickPosition(QSlider.NoTicks)
+        self._dynRatioSlider.setTickInterval(12)
+
+        self.verticalLayout_6.addWidget(self._dynRatioSlider)
+
+        self._dynRatioLabel = QLabel(self.verticalLayoutWidget_5)
+        self._dynRatioLabel.setObjectName(u"_dynRatioLabel")
+        self._dynRatioLabel.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_6.addWidget(self._dynRatioLabel)
+
+
+        self.horizontalLayout_2.addLayout(self.verticalLayout_6)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
+
+        self._gateGraph_2 = QWidget(self.dynamics)
+        self._gateGraph_2.setObjectName(u"_gateGraph_2")
+        self._gateGraph_2.setGeometry(QRect(10, 10, 211, 261))
         self.tabWidget.addTab(self.dynamics, "")
         self.eq = QWidget()
         self.eq.setObjectName(u"eq")
         self.tabWidget.addTab(self.eq, "")
 
-        self.retranslateUi(Form)
+        self.retranslateUi(Dialog)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
+        self._lowcutToggle.setDefault(False)
 
 
-        QMetaObject.connectSlotsByName(Form)
+        QMetaObject.connectSlotsByName(Dialog)
     # setupUi
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self._linkToggle.setText(QCoreApplication.translate("Form", u"L", None))
-        self._phantomToggle.setText(QCoreApplication.translate("Form", u"48V", None))
-        self._channelName.setText(QCoreApplication.translate("Form", u"Channel 1", None))
+    def retranslateUi(self, Dialog):
+        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
+        self._linkToggle.setText(QCoreApplication.translate("Dialog", u"L", None))
+        self._phantomToggle.setText(QCoreApplication.translate("Dialog", u"48V", None))
+        self._channelName.setText(QCoreApplication.translate("Dialog", u"Channel 1", None))
         self._channelName.setPlaceholderText("")
-        self._colourDropdown.setItemText(0, QCoreApplication.translate("Form", u"Red", None))
-        self._colourDropdown.setItemText(1, QCoreApplication.translate("Form", u"Green", None))
-        self._colourDropdown.setItemText(2, QCoreApplication.translate("Form", u"Yellow", None))
-        self._colourDropdown.setItemText(3, QCoreApplication.translate("Form", u"Blue", None))
-        self._colourDropdown.setItemText(4, QCoreApplication.translate("Form", u"Magenta", None))
-        self._colourDropdown.setItemText(5, QCoreApplication.translate("Form", u"Cyan", None))
-        self._colourDropdown.setItemText(6, QCoreApplication.translate("Form", u"White", None))
+        self._colourDropdown.setItemText(0, QCoreApplication.translate("Dialog", u"Red", None))
+        self._colourDropdown.setItemText(1, QCoreApplication.translate("Dialog", u"Green", None))
+        self._colourDropdown.setItemText(2, QCoreApplication.translate("Dialog", u"Yellow", None))
+        self._colourDropdown.setItemText(3, QCoreApplication.translate("Dialog", u"Blue", None))
+        self._colourDropdown.setItemText(4, QCoreApplication.translate("Dialog", u"Magenta", None))
+        self._colourDropdown.setItemText(5, QCoreApplication.translate("Dialog", u"Cyan", None))
+        self._colourDropdown.setItemText(6, QCoreApplication.translate("Dialog", u"White", None))
 
-        self._sourceLabel.setText(QCoreApplication.translate("Form", u"Source", None))
-        self._inputSelect.setItemText(0, QCoreApplication.translate("Form", u"In01", None))
+        self._sourceLabel.setText(QCoreApplication.translate("Dialog", u"Source", None))
+        self._inputSelect.setItemText(0, QCoreApplication.translate("Dialog", u"In01", None))
 
-        self._gainLevel.setText(QCoreApplication.translate("Form", u"+0.0db", None))
-        self._lowcutLabel.setText(QCoreApplication.translate("Form", u"Low Cut", None))
-        self._lowcutToggle.setText(QCoreApplication.translate("Form", u"Enable", None))
-        self._lowcutLevel.setText(QCoreApplication.translate("Form", u"20Hz", None))
-        self._delayLabel.setText(QCoreApplication.translate("Form", u"Delay", None))
-        self._delayToggle.setText(QCoreApplication.translate("Form", u"Enable", None))
-        self._delayLevel.setText(QCoreApplication.translate("Form", u"0.3ms", None))
-        self._meterLabel.setText(QCoreApplication.translate("Form", u"0db", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.config), QCoreApplication.translate("Form", u"Config", None))
-        self._gateToggle.setText(QCoreApplication.translate("Form", u"Enable Gate", None))
-        self._threshTitle.setText(QCoreApplication.translate("Form", u"Threshold", None))
-        self._gateThreshLabel.setText(QCoreApplication.translate("Form", u"-80.0db", None))
-        self._rangeTitle.setText(QCoreApplication.translate("Form", u"Range", None))
-        self._gateRangeLabel.setText(QCoreApplication.translate("Form", u"60.0db", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.gate), QCoreApplication.translate("Form", u"Gate", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.dynamics), QCoreApplication.translate("Form", u"Dynamics", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.eq), QCoreApplication.translate("Form", u"EQ", None))
+        self._gainLevel.setText(QCoreApplication.translate("Dialog", u"+0.0db", None))
+        self._lowcutLabel.setText(QCoreApplication.translate("Dialog", u"Low Cut", None))
+        self._lowcutToggle.setText(QCoreApplication.translate("Dialog", u"Enable", None))
+        self._lowcutLevel.setText(QCoreApplication.translate("Dialog", u"20Hz", None))
+        self._delayLabel.setText(QCoreApplication.translate("Dialog", u"Delay", None))
+        self._delayToggle.setText(QCoreApplication.translate("Dialog", u"Enable", None))
+        self._delayLevel.setText(QCoreApplication.translate("Dialog", u"0.3ms", None))
+        self._meterLabel.setText(QCoreApplication.translate("Dialog", u"0db", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.config), QCoreApplication.translate("Dialog", u"Config", None))
+        self._gateToggle.setText(QCoreApplication.translate("Dialog", u"Enable Gate", None))
+        self._threshTitle.setText(QCoreApplication.translate("Dialog", u"Threshold", None))
+        self._gateThreshLabel.setText(QCoreApplication.translate("Dialog", u"-80.0db", None))
+        self._rangeTitle.setText(QCoreApplication.translate("Dialog", u"Range", None))
+        self._gateRangeLabel.setText(QCoreApplication.translate("Dialog", u"60.0db", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.gate), QCoreApplication.translate("Dialog", u"Gate", None))
+        self._dynToggle.setText(QCoreApplication.translate("Dialog", u"Enable Dynamics", None))
+        self._threshDynTitle.setText(QCoreApplication.translate("Dialog", u"Threshold", None))
+        self._dynThreshLabel.setText(QCoreApplication.translate("Dialog", u"-80.0db", None))
+        self._rangeTitle_2.setText(QCoreApplication.translate("Dialog", u"Ratio", None))
+        self._dynRatioLabel.setText(QCoreApplication.translate("Dialog", u"60.0db", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.dynamics), QCoreApplication.translate("Dialog", u"Dynamics", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.eq), QCoreApplication.translate("Dialog", u"EQ", None))
     # retranslateUi
 

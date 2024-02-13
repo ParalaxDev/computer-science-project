@@ -307,7 +307,13 @@ class Base:
                 'Dynamics threshold value is not between -60 and 0 db')
 
     def updateDynamicsRatio(self, val):
-        pass
+        if type(val) == int and val > 0 or val < 11:
+            self.DYN_RATIO = val
+            self.OSC.send(osc.construct(
+                f'/{self.TYPE}/{str(self.ID).zfill(2)}/dyn/ratio', [{'i': self.DYN_RATIO}]))
+        else:
+            self.triggerError(
+                'Dynamics ratio value is not between 0 and 11')
 
     def updateEq(self, val: bool) -> None:
         val = bool(val)

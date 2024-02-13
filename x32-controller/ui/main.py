@@ -1,8 +1,12 @@
 from PyQt6 import QtCore, QtWidgets, QtGui
 import osc
-import core, utils
-import ui, ui.widgets, database
+import core
+import utils
+import ui
+import ui.widgets
+import database
 from types import UnionType
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, db: database.controller):
@@ -51,8 +55,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def generateFaderBank(self):
         scrollArea = QtWidgets.QScrollArea(self._tabGroup)
-        scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scrollArea.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        scrollArea.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scrollArea.setMinimumHeight(550)
         scrollArea.setMinimumWidth(800)
         scrollArea.setWidgetResizable(True)
@@ -73,7 +79,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.channels.append(ch)
                 FADER = ui.widgets.Fader(i, self.OSC, ch)
 
-                self._channels.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
+                self._channels.findChildren(QtWidgets.QWidget)[0].findChildren(
+                    QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.channelFaders.append(FADER)
 
             for i in range(16):
@@ -82,7 +89,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.buses.append(bus)
                 FADER = ui.widgets.Fader(i, self.OSC, bus)
 
-                self._buses.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
+                self._buses.findChildren(QtWidgets.QWidget)[0].findChildren(
+                    QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.busFaders.append(FADER)
 
             for i in range(8):
@@ -91,11 +99,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.matrices.append(matrix)
                 FADER = ui.widgets.Fader(i, self.OSC, matrix)
 
-                self._matrices.findChildren(QtWidgets.QWidget)[0].findChildren(QtWidgets.QHBoxLayout)[0].addWidget(FADER)
+                self._matrices.findChildren(QtWidgets.QWidget)[0].findChildren(
+                    QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.matrixFaders.append(FADER)
 
     def redraw(self, type='all'):
-        print('REDRAW CALLED')
         faders: list[ui.widgets.Fader] = []
         match type:
             case 'ch':
@@ -118,7 +126,8 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.resizeEvent(self, event)
 
     def openSettings(self):
-        settings = ui.SettingsWindow(self.DB, user=self.userData, oldOsc=self.OSC)
+        settings = ui.SettingsWindow(
+            self.DB, user=self.userData, oldOsc=self.OSC)
         settings.exec()
 
     def _createMenuBar(self):
@@ -151,7 +160,6 @@ class MainWindow(QtWidgets.QMainWindow):
         sendOnFaders.triggered.connect(self.changeMode)
         fileMenu.addAction(sendOnFaders)
 
-
     def setSelectedFader(self, newFader: core.channel | core.bus | core.matrix | None):
         self.selectedFader = newFader
 
@@ -159,8 +167,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.mode == 'normal' and self.selectedFader != None:
             self.mode = 'sof'
             self._sofWarning = QtWidgets.QLabel(self)
-            self._sofWarning.setText(f"WARNING: YOU'RE EDITING THE SENDS FOR {self.selectedFader.NAME}")
-            self._sofWarning.setGeometry(0, 0, self.frameGeometry().width(), 25)
+            self._sofWarning.setText(
+                f"WARNING: YOU'RE EDITING THE SENDS FOR {self.selectedFader.NAME}")
+            self._sofWarning.setGeometry(
+                0, 0, self.frameGeometry().width(), 25)
             self._sofWarning.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             self._sofWarning.show()
             self._sofWarning.setStyleSheet('background-color: #e64843')
@@ -170,7 +180,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self._sofWarning.hide()
             self._tabGroup.setCurrentIndex(0)
         else:
-            error = ui.ErrorWindow('There was an error entering SOF mode, try selecting a channel.')
+            error = ui.ErrorWindow(
+                'There was an error entering SOF mode, try selecting a channel.')
             error.show()
 
         self.redraw('bus')
@@ -184,7 +195,7 @@ class MainWindow(QtWidgets.QMainWindow):
         save.show()
 
     def openState(self):
-        open =  ui.OpenWindow(self.DB, self.userData, self)
+        open = ui.OpenWindow(self.DB, self.userData, self)
         open.show()
 
     def closeEvent(self, *args, **kwargs):
