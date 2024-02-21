@@ -1,3 +1,6 @@
+import math
+
+
 def FloatToDb(float):
     if (float >= 0.5):
         d = float * 40 - 30
@@ -31,6 +34,10 @@ def FloatToFader(OldValue, NewMin=-90, NewMax=10, OldMax=1, OldMin=0):
         NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
 
     return NewValue
+
+
+def freqToNum(x):
+    return math.exp(math.log(20) + (math.log(20000) - math.log(20)) * x)
 
 
 def RatioEnum(val):

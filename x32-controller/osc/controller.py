@@ -2,7 +2,7 @@ import socket
 import select
 import queue
 import osc
-import ui
+# import ui
 import utils
 from osc import types
 
@@ -13,7 +13,7 @@ class Controller:
         self.PORT = port
         self.LIVE = live
         self.SOCK = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.SOCK.bind((self.IP, host))
+        self.SOCK.bind(('169.254.221.148', host))
         self.SOCK.setblocking(False)
         self.HOST = host
         self.TIMEOUT = timeout
@@ -36,6 +36,7 @@ class Controller:
             f"SENDING MESSAGE: {OSCMessage.MESSAGE} {OSCMessage.VALUE_ARRAY}")
 
         if self.LIVE:
+            print(self.IP, self.PORT)
             self.SOCK.sendto(bytes(utils.pad(OSCMessage.MESSAGE) + utils.pad(
                 ',' + OSCMessage.TYPE_STRING), 'ascii') + OSCMessage.VALUE_ARRAY, (self.IP, self.PORT))
 
@@ -48,6 +49,7 @@ class Controller:
 
     def receive(self, msg: osc.construct, callback):
         ready = select.select([self.SOCK], [], [], self.TIMEOUT)
+        print(ready)
 
         if ready[0]:
             data, addr = self.SOCK.recvfrom(self.HOST)
@@ -66,9 +68,9 @@ class Controller:
                 raise Exception('Observed wrong packet')
         else:
             utils.log.error('Connection timed out')
-            msg = ui.ErrorWindow(
-                f'Connection timed out after {self.TIMEOUT} seconds')
-            msg.show()
+            # msg = ui.ErrorWindow(
+            #     f'Connection timed out after {self.TIMEOUT} seconds')
+            # msg.show()
             return (0, )
 
     def decode(self, data):

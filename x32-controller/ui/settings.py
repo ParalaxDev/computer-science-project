@@ -19,7 +19,7 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
         self.db = db
 
         self.ip = [0, 0, 0, 0]
-        self.port = 10024
+        self.port = 10023
         self.live = False
 
         res = self.db.execute(

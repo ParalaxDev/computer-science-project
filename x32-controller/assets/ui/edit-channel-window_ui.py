@@ -24,7 +24,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(400, 300)
+        Dialog.resize(401, 300)
         self.tabWidget = QTabWidget(Dialog)
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabWidget.setGeometry(QRect(0, 0, 401, 301))
@@ -249,7 +249,7 @@ class Ui_Dialog(object):
         self.dynamics.setObjectName(u"dynamics")
         self.verticalLayoutWidget_5 = QWidget(self.dynamics)
         self.verticalLayoutWidget_5.setObjectName(u"verticalLayoutWidget_5")
-        self.verticalLayoutWidget_5.setGeometry(QRect(230, 0, 176, 271))
+        self.verticalLayoutWidget_5.setGeometry(QRect(230, 0, 171, 271))
         self.verticalLayout_4 = QVBoxLayout(self.verticalLayoutWidget_5)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -335,11 +335,14 @@ class Ui_Dialog(object):
         self.tabWidget.addTab(self.dynamics, "")
         self.eq = QWidget()
         self.eq.setObjectName(u"eq")
+        self._gateGraph_3 = QWidget(self.eq)
+        self._gateGraph_3.setObjectName(u"_gateGraph_3")
+        self._gateGraph_3.setGeometry(QRect(10, 10, 380, 255))
         self.tabWidget.addTab(self.eq, "")
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(3)
         self._lowcutToggle.setDefault(False)
 
 

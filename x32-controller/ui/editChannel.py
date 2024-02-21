@@ -57,6 +57,10 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._dynRatioSlider.valueChanged.connect(self.dynRatioChanged)
         self._dynToggle.clicked.connect(self.dynToggled)
 
+        self._eqGraph = ui.widgets.EqualizerGraph()
+        self._eqGraph.setGeometry(10, 10, 380, 255)
+        self._eqGraph.setParent(self.eq)
+
         self.redraw()
 
     def dynThreshChanged(self, val):
