@@ -18,6 +18,15 @@ class Channel(core.base):
     def __init__(self, OSC: osc.controller, id) -> None:
         super().__init__(OSC, id, 'ch')
 
+
+        self.HEADAMP_SOURCE = 0
+        self.HEADAMP_GAIN = 0
+
+        self.HP_ON = 0
+        self.HP_FREQ = 0
+
+        self.PHANTOM = 0
+
         self.loadValues()
 
     def loadValues(self):
@@ -37,7 +46,7 @@ class Channel(core.base):
         self.PHANTOM, = self.OSC.send(osc.construct(
             f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/phantom'))
 
-        self.BUS_SENDS = self.loadAllBusSends()
+        # self.BUS_SENDS = self.loadAllBusSends()
 
     def loadAllBusSends(self) -> List[BusSends]:
         res: List[BusSends] = []
@@ -47,7 +56,7 @@ class Channel(core.base):
                 f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(i + 1).zfill(2)}/on'))
             level, = self.OSC.send(osc.construct(
                 f'/{self.TYPE}/{str(self.ID).zfill(2)}/mix/{str(i + 1).zfill(2)}/level'))
-            print(level)
+            # print(level)
             res.append(BusSends(on, level))
 
         return res

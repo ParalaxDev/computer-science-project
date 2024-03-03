@@ -70,12 +70,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         return scrollArea
 
+    def setOSC(self, osc):
+        self.OSC = osc
+
     def loadData(self, osc):
         self.OSC = osc
         if self.OSC:
+
             for i in range(32):
                 ch = core.channel(self.OSC, i + 1)
-                ch.updateName(f'Channel {i+1}')
                 self.channels.append(ch)
                 FADER = ui.widgets.Fader(i, self.OSC, ch)
 
@@ -83,25 +86,43 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QHBoxLayout)[0].addWidget(FADER)
                 self.channelFaders.append(FADER)
 
-            for i in range(16):
-                bus = core.bus(self.OSC, i + 1)
-                bus.updateName(f'Bus {i+1}')
-                self.buses.append(bus)
-                FADER = ui.widgets.Fader(i, self.OSC, bus)
+            self.OSC.setMeterCallback(self.updateMeters)
 
-                self._buses.findChildren(QtWidgets.QWidget)[0].findChildren(
-                    QtWidgets.QHBoxLayout)[0].addWidget(FADER)
-                self.busFaders.append(FADER)
+            # for i in range(16):
+            #     bus = core.bus(self.OSC, i + 1)
+            #     bus.updateName(f'Bus {i+1}')
+            #     self.buses.append(bus)
+            #     FADER = ui.widgets.Fader(i, self.OSC, bus)
 
-            for i in range(8):
-                matrix = core.bus(self.OSC, i + 1)
-                matrix.updateName(f'Matrix {i+1}')
-                self.matrices.append(matrix)
-                FADER = ui.widgets.Fader(i, self.OSC, matrix)
+            #     self._buses.findChildren(QtWidgets.QWidget)[0].findChildren(
+            #         QtWidgets.QHBoxLayout)[0].addWidget(FADER)
+            #     self.busFaders.append(FADER)
 
-                self._matrices.findChildren(QtWidgets.QWidget)[0].findChildren(
-                    QtWidgets.QHBoxLayout)[0].addWidget(FADER)
-                self.matrixFaders.append(FADER)
+            # for i in range(8):
+            #     matrix = core.bus(self.OSC, i + 1)
+            #     matrix.updateName(f'Matrix {i+1}')
+            #     self.matrices.append(matrix)
+            #     FADER = ui.widgets.Fader(i, self.OSC, matrix)
+
+            #     self._matrices.findChildren(QtWidgets.QWidget)[0].findChildren(
+            #         QtWidgets.QHBoxLayout)[0].addWidget(FADER)
+            #     self.matrixFaders.append(FADER)
+
+    def updateMeters(self):
+        faders: list[ui.widgets.Fader] = self.channelFaders
+
+        for fader in faders:
+            fader.updateMeters()
+
+    def reloadValues(self):
+        utils.log.error("RELOADING VALUES (WILL TAKE AGES)")
+        faders: list[core.base] = self.channels
+
+        for fader in faders:
+            fader.loadValues()
+
+        self.redraw()
+        # self.OSC.setMeterCallback(self.updateMeters)
 
     def redraw(self, type='all'):
         faders: list[ui.widgets.Fader] = []
@@ -127,7 +148,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def openSettings(self):
         settings = ui.SettingsWindow(
-            self.DB, user=self.userData, oldOsc=self.OSC)
+            self.DB, user=self.userData, oldOsc=self.OSC, mainWindow=self)
         settings.exec()
 
     def _createMenuBar(self):
