@@ -2,6 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets, uic
 import osc
 import ui
 import database
+import utils
 
 QSettings = uic.loadUiType("x32-controller/assets/ui/settings-window.ui")[0]
 
@@ -112,6 +113,13 @@ class SettingsWindow(QtWidgets.QDialog, QSettings):
             self.oldOsc.setLive(self.live)
 
         assert (self.user)
+
+        # if not self.setup:
+        # try:
+        print(f"reloading vals from settings setup = {self.setup} live = {self.live}")
+        self.mainWindow.reloadValues()
+        # except Exception as e:
+        # utils.log.error(f"ERROR: {e}")
 
         self.db.execute(
             f'UPDATE users SET saved_ip = "{".".join(str(x) for x in self.ip)}", saved_port = "{self.port}", saved_live_mode = {self.live} WHERE id = {self.user}')

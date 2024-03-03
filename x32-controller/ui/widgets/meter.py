@@ -1,7 +1,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets, uic
 from PyQt6.QtCore import Qt
 from PySide6.QtCore import QRect
-import osc, core, utils
+import osc
+import core
+import utils
 
 
 class Meter(QtWidgets.QWidget):
@@ -30,10 +32,10 @@ class Meter(QtWidgets.QWidget):
         self._background_color = QtGui.QColor('black')
         self._background_color.setAlpha(0)
         self._padding = 3.0  # n-pixel gap around edge.
-
+        self.meter = 0
 
     def sizeHint(self):
-        return QtCore.QSize(30,60)
+        return QtCore.QSize(30, 60)
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
@@ -41,12 +43,13 @@ class Meter(QtWidgets.QWidget):
         brush = QtGui.QBrush()
         brush.setColor(self._background_color)
         brush.setStyle(Qt.BrushStyle.SolidPattern)
-        rect = QtCore.QRect(0, 0, painter.device().width(), painter.device().height())
+        rect = QtCore.QRect(0, 0, painter.device().width(),
+                            painter.device().height())
         painter.fillRect(rect, brush)
 
         # Get current state.
-        # meter = self.parent().meter
-        meter = 0.75
+
+        meter = self.meter
 
         # Define our canvas.
         d_height = painter.device().height() - (self._padding * 2)
@@ -64,7 +67,8 @@ class Meter(QtWidgets.QWidget):
             brush.setColor(QtGui.QColor(self.steps[n]))
             rect = QtCore.QRect(
                 int(self._padding),
-                int(self._padding + d_height - ((1 + n) * step_size) + bar_spacer),
+                int(self._padding + d_height -
+                    ((1 + n) * step_size) + bar_spacer),
                 int(d_width),
                 int(bar_height)
             )
@@ -73,5 +77,5 @@ class Meter(QtWidgets.QWidget):
         painter.end()
 
     def _trigger_refresh(self):
+        # print(self.meter)
         self.update()
-

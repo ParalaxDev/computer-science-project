@@ -3,6 +3,7 @@ import osc
 import core
 import utils
 import ui.widgets
+import threading
 
 QEdit = uic.loadUiType("x32-controller/assets/ui/edit-channel-window.ui")[0]
 
@@ -62,6 +63,14 @@ class EditChannelWindow(QtWidgets.QDialog, QEdit):
         self._eqGraph.setParent(self.eq)
 
         self.redraw()
+
+        meterThread = threading.Thread(target=self.meterThread)
+        meterThread.start()
+
+    def meterThread(self):
+        while True:
+            self._meter.meter = self.OSC.METER_DATA[self.SOURCE.ID]
+            self._meter._trigger_refresh()
 
     def dynThreshChanged(self, val):
         self.SOURCE.updateDynamicsThresh(float(val))

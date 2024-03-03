@@ -2,9 +2,11 @@ from termcolor import colored
 
 logging = False
 
+
 def setLogging(val):
     global logging
     logging = val
+
 
 def info(msg):
     if logging:
@@ -13,11 +15,13 @@ def info(msg):
             colored(f"{msg}")
         )
 
+
 def warn(msg):
     print(
         colored(f"[WARN]", 'yellow', 'on_yellow') + ' ' +
         colored(f"{msg}")
     )
+
 
 def error(msg):
     print(

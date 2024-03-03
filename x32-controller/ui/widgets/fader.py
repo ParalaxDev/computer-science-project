@@ -5,6 +5,8 @@ import core
 import utils
 import ui
 import ui.widgets
+import threading
+import time
 
 
 class Fader(QtWidgets.QWidget):
@@ -75,6 +77,10 @@ class Fader(QtWidgets.QWidget):
 
         self.setLayout(layout)
 
+        # meterThread = threading.Thread(target=self.meterThread)
+        # meterThread.start()
+
+
         # self.mainWindow:ui.MainWindow = self.parent().parent().parent().parent().parent().parent()
 
     def selectToggle(self):
@@ -96,12 +102,16 @@ class Fader(QtWidgets.QWidget):
 
         mainWindow.redraw()
 
+    def updateMeters(self):
+        self._bar.meter = self.OSC.METER_DATA[self.faderId]
+        self.update()
+
     def redraw(self, type=''):
         mainWindow: ui.MainWindow = self.parent(
         ).parent().parent().parent().parent().parent()
         selected = mainWindow.selectedFader
 
-        self._nameLabel.setText(self.SOURCE.NAME)
+        self._nameLabel.setText(str(self.SOURCE.NAME))
 
         match self.SOURCE.TYPE:
             case 'bus':
@@ -156,10 +166,6 @@ class Fader(QtWidgets.QWidget):
         selected.updateBusSendLevels(busId, utils.DbToFloat(newVal))
         # print(utils.FloatToDb(selected.BUS_SENDS[busId].LEVEL), selected.BUS_SENDS[busId].LEVEL)
         self._gainLabel.setText(f'{"-∞" if newVal == -90 else newVal}db')
-
-    def meterUpdate(self, val):
-        self.meter = val
-        self._bar._trigger_refresh()
 
     def faderUpdate(self, val):
         self._gainLabel.setText(f'{"-∞" if val == -90 else val}db')

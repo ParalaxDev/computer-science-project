@@ -16,14 +16,55 @@ class Base:
         self.TYPE = type
         self.UID = self.TYPE + '-' + str(self.ID)
 
-        self.loadValues()
+        self.NAME = "None"
+        self.COLOUR = 0
+        self.SOURCE = 0
+        self.LINK = 0
+
+        self.DELAY_ON = 0
+        self.DELAY_TIME = 0
+
+        self.GATE_ON = 0
+        self.GATE_THRESH = 0
+        self.GATE_RANGE = 0
+
+        self.DYN_ON = 0
+        self.DYN_THRESH = 0
+        self.DYN_RATIO = 0  # TODO: Implement this
+
+        self.EQ_ON = 0
+
+        self.EQ_1_TYPE = 0
+        self.EQ_1_F = 0
+        self.EQ_1_G = 0
+        self.EQ_1_Q = 0
+
+        self.EQ_2_TYPE = 0
+        self.EQ_2_F = 0
+        self.EQ_2_G = 0
+        self.EQ_2_Q = 0
+
+        self.EQ_3_TYPE = 0
+        self.EQ_3_F = 0
+        self.EQ_3_G = 0
+        self.EQ_3_Q = 0
+
+        self.EQ_4_TYPE = 0
+        self.EQ_4_F = 0
+        self.EQ_4_G = 0
+        self.EQ_4_Q = 0
+
+        self.GAIN = 0
+        self.MUTE = 0
+        self.PAN = 0
 
     def __str__(self) -> str:
         return f'FADER {self.NAME} is at {self.GAIN} from {self.SOURCE}'
 
     def loadValues(self) -> None:
-        self.NAME, = self.OSC.send(osc.construct(
+        res, = self.OSC.send(osc.construct(
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/name'))
+        self.NAME = f'Channel {self.ID}' if res == 0 else res
         self.COLOUR, = self.OSC.send(osc.construct(
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
         self.SOURCE, = self.OSC.send(osc.construct(
@@ -217,8 +258,7 @@ class Base:
             elif col == 'white':
                 colcode = osc.colours.WHITE
             if colcode == None:
-                self.triggerError('Not a valid colour')
-                return
+                colcode = osc.colours.GREEN
         else:
             colcode = col
 
