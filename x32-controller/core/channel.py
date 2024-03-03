@@ -22,6 +22,8 @@ class Channel(core.base):
         self.HEADAMP_SOURCE = 0
         self.HEADAMP_GAIN = 0
 
+        self.LINK = 0
+
         self.HP_ON = 0
         self.HP_FREQ = 0
 
@@ -37,6 +39,9 @@ class Channel(core.base):
             osc.construct(f'/-ha/{str(self.ID - 1).zfill(2)}/index'))
         self.HEADAMP_GAIN, = self.OSC.send(osc.construct(
             f'/headamp/{str(self.HEADAMP_SOURCE).zfill(3)}/gain'))
+
+        self.LINK, = self.OSC.send(osc.construct(
+                    f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
 
         self.HP_ON, = self.OSC.send(osc.construct(
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/preamp/hpon'))
@@ -69,7 +74,8 @@ class Channel(core.base):
                 save_id,
                 base_id,
                 channel_num,
-                headamp_source, headamp_gain,
+                headamp_source, headamp_gain,]
+                link,
                 hp_on, hp_freq,
                 phantom
             ) VALUES (
@@ -77,6 +83,7 @@ class Channel(core.base):
                 "{baseId}",
                 "{channelId}",
                 "{self.HEADAMP_SOURCE}", "{self.HEADAMP_GAIN}",
+                "{self.LINK}"
                 "{self.HP_ON}", "{self.HP_FREQ}",
                 "{self.PHANTOM}"
             )

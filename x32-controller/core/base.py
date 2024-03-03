@@ -19,7 +19,6 @@ class Base:
         self.NAME = "None"
         self.COLOUR = 0
         self.SOURCE = 0
-        self.LINK = 0
 
         self.DELAY_ON = 0
         self.DELAY_TIME = 0
@@ -69,8 +68,7 @@ class Base:
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/color'))
         self.SOURCE, = self.OSC.send(osc.construct(
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/config/source'))
-        self.LINK, = self.OSC.send(osc.construct(
-            f'/config/{self.TYPE}link/{f"{self.ID - 1}-{self.ID}" if self.ID % 2 == 0 else f"{self.ID}-{self.ID + 1}"}'))
+
 
         self.DELAY_ON, = self.OSC.send(osc.construct(
             f'/{self.TYPE}/{str(self.ID).zfill(2)}/delay/on'))
@@ -143,7 +141,6 @@ class Base:
                 name,
                 colour,
                 source,
-                link,
                 delay_on, delay_time,
                 gate_on, gate_thresh, gate_range,
                 dyn_on, dyn_thresh, dyn_ratio,
@@ -159,7 +156,6 @@ class Base:
                 "{self.NAME}",
                 "{self.COLOUR}",
                 "{self.SOURCE}",
-                "{self.LINK}",
                 "{self.DELAY_ON}", "{self.DELAY_TIME}",
                 "{self.GATE_ON}", "{self.GATE_THRESH}", "{self.GATE_RANGE}",
                 "{self.DYN_ON}", "{self.DYN_THRESH}", "{self.DYN_RATIO}",
