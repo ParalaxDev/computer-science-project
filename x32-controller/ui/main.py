@@ -176,10 +176,19 @@ class MainWindow(QtWidgets.QMainWindow):
         open.triggered.connect(self.openState)
         fileMenu.addAction(open)
 
+        routing = QtGui.QAction('Routing', self)
+        routing.setShortcut('Ctrl+R')
+        routing.triggered.connect(self.openRouting)
+        fileMenu.addAction(routing)
+
         sendOnFaders = QtGui.QAction('Send on Faders', self)
         sendOnFaders.setShortcut('Ctrl+F')
         sendOnFaders.triggered.connect(self.changeMode)
         fileMenu.addAction(sendOnFaders)
+
+    def openRouting(self):
+        save = ui.RoutingWindow(self.DB, self.userData, self)
+        save.show()
 
     def setSelectedFader(self, newFader: core.channel | core.bus | core.matrix | None):
         self.selectedFader = newFader
