@@ -7,4 +7,6 @@ from ui.saveAs import SaveAsWindow
 from ui.save import SaveWindow
 from ui.open import OpenWindow
 from ui.routing import RoutingWindow
+from ui.showControl import ShowControlWindow
+from ui.newSnippet import NewSnippetWindow
 import ui.widgets

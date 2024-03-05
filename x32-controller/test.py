@@ -6,7 +6,7 @@ osc = osc.controller('192.168.0.2')
 
 app = QtWidgets.QApplication(sys.argv)
 
-routing = ui.RoutingWindow(db, osc)
+routing = ui.ShowControlWindow(db, osc)
 routing.show()
 
 routing.raise_()
