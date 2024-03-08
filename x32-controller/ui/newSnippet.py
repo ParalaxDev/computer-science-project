@@ -6,7 +6,7 @@ import hashlib, database, ui, re, utils.log, osc, time, core, datetime, ui.error
 QLogin = uic.loadUiType("x32-controller/assets/ui/new-snippet-window.ui")[0]
 
 class NewSnippetWindow(QtWidgets.QDialog, QLogin):
-    def __init__(self, db: database.controller, addSnippet, parent=None):
+    def __init__(self, addSnippet, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -27,6 +27,7 @@ class NewSnippetWindow(QtWidgets.QDialog, QLogin):
         check = QtWidgets.QCheckBox(f'Channel {num + 1}')
         check.stateChanged.connect(lambda newVal: self.handleCheckbox(num, newVal))
         self.formLayout.addRow(check)
+        # , alignment=QtCore.Qt.AlignmentFlag.AlignCenter
 
     def handleCheckbox(self, channel, newVal):
         self.CHANNELS[channel] = True if newVal != 0 else False

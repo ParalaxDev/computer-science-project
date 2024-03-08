@@ -6,15 +6,25 @@ import hashlib, database, ui, re, utils.log, osc, time, core, datetime, ui.error
 QLogin = uic.loadUiType("x32-controller/assets/ui/show-control-window.ui")[0]
 
 class ShowControlWindow(QtWidgets.QDialog, QLogin):
-    def __init__(self, db: database.controller, osc: osc.controller, parent=None):
+    def __init__(self, db: database.controller, osc: osc.controller, userId, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
 
         self.DB = db
         self.OSC = osc
+        self.USERID = userId
 
         self.CURRENTCUE = 0
         self.CUESTACK = []
+
+        snippets = self.DB.execute(f'SELECT * FROM snippets WHERE user_id = "{self.USERID}"')
+        if snippets:
+            snippets = snippets.fetchall()
+            for snippet in snippets:
+                self.CUESTACK.append({
+                    "name": snippet[2],
+                    "data": [char == '1' for char in snippet[4]]
+                })
 
         self.displayTable.setColumnCount(33)
 
@@ -35,7 +45,7 @@ class ShowControlWindow(QtWidgets.QDialog, QLogin):
         self.newSnippetButton.clicked.connect(self.newSnippet)
 
     def newSnippet(self):
-        newSnippetForm = ui.NewSnippetWindow(self.DB, self.addSnippet)
+        newSnippetForm = ui.NewSnippetWindow(self.addSnippet)
         newSnippetForm.exec()
 
     def redrawTable(self):
@@ -53,6 +63,8 @@ class ShowControlWindow(QtWidgets.QDialog, QLogin):
             self.displayTable.setItem(num, i + 2, QtWidgets.QTableWidgetItem(f"{icon}"))
 
     def addSnippet(self, newChannels):
+        compacted = ''.join('1' if boolean else '0' for boolean in newChannels['data'])
+        self.DB.execute(f'INSERT INTO snippets (user_id, name, number, bools) VALUES ("{self.USERID}", "{newChannels["name"]}", "{len(self.CUESTACK)}", "{compacted}")')
         self.CUESTACK.append(newChannels)
         self.redrawTable()
 

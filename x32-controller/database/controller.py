@@ -17,6 +17,21 @@ class Controller:
         self.createChannelsTable()
         self.createSavesTable()
         self.createUsersTable()
+        self.createSnippetsTable()
+
+    def createSnippetsTable(self):
+        self.execute('''
+            CREATE TABLE IF NOT EXISTS "snippets" (
+                "id" INTEGER UNIQUE,
+                "user_id" INTEGER,
+                "name" TEXT,
+                "number" INTEGER,
+                "bools" TEXT,
+                PRIMARY KEY("id" AUTOINCREMENT)
+                FOREIGN KEY ("user_id")
+                    REFERENCES "uses" ("id")
+            )
+        ''')
 
     def createBasesTable(self):
         self.execute('''
