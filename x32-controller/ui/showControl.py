@@ -74,3 +74,9 @@ class ShowControlWindow(QtWidgets.QDialog, QLogin):
         self.currentCue.setText(f'Current Cue: {newCue}')
 
         self.displayTable.selectRow(newCue)
+
+        print(self.CUESTACK[self.CURRENTCUE])
+
+        for i, val in enumerate(self.CUESTACK[self.CURRENTCUE]['data']):
+            print(val)
+            self.OSC.send(osc.construct(f'/ch/{str(i + 1).zfill(2)}/mix/on', [{'i': int(val)}]))

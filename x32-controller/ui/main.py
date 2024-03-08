@@ -181,13 +181,21 @@ class MainWindow(QtWidgets.QMainWindow):
         routing.triggered.connect(self.openRouting)
         fileMenu.addAction(routing)
 
+        open = QtGui.QAction('Open Show Control', self)
+        open.setShortcut('Ctrl+Alt+C')
+        open.triggered.connect(self.openState)
+        fileMenu.addAction(open)
+
         sendOnFaders = QtGui.QAction('Send on Faders', self)
         sendOnFaders.setShortcut('Ctrl+F')
         sendOnFaders.triggered.connect(self.changeMode)
         fileMenu.addAction(sendOnFaders)
 
+    def openShowControl(self):
+        showControl = ui.ShowControlWindow(self.DB, self.OSC, self.userData)
+
     def openRouting(self):
-        save = ui.RoutingWindow(self.DB, self.userData, self)
+        save = ui.RoutingWindow(self.DB, self.OSC, self)
         save.show()
 
     def setSelectedFader(self, newFader: core.channel | core.bus | core.matrix | None):
